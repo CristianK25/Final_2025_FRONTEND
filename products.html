@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header id="navbar-container">
+        <!-- El navbar se inyectará aquí desde js/components.js -->
+    </header>
+
+    <main class="container">
+        <h1>Catálogo de Productos</h1>
+        <div id="product-list" class="product-grid">
+            <p>Cargando productos...</p>
+        </div>
+    </main>
+
+    <!-- Contenedores para modales (Login, Carrito, Checkout) -->
+    <div id="login-modal-container"></div>
+    <div id="cart-modal-container"></div>
+    <div id="checkout-modal-container"></div>
+
+    <footer id="footer"></footer>
+
+    <script type="module">
+        import { fetchData } from './js/api.js';
+        import { createProductCard, loadNavbar, renderModals, loadFooter } from './js/components.js';
+        
+        // 1. Cargar Navbar y Footer
+        loadNavbar();
+        loadFooter();
+        renderModals(); // Asegurarse de que los modales se rendericen
+
+        // 2. Cargar Productos al iniciar
+        async function init() {
+            const container = document.getElementById('product-list');
+            
+            // Llamada al Backend (sin localhost, usando el proxy)
+            const products = await fetchData('/products?skip=0&limit=100');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p>No hay productos o la base de datos está vacía.</p>';
+                return;
+            }
+
+            // Dibujar tarjetas
+            container.innerHTML = products.map(p => createProductCard(p)).join('');
+        }
+
+        init();
+        
+        // Hacer global la función del carrito (porque onclick en HTML no ve módulos)
+        window.addToCart = (id) => alert(`Producto ${id} agregado (Lógica pendiente)`);
+        window.openLogin = () => { /* Implementación en js/modals.js */ alert('Open Login (global)'); };
+        window.openCart = () => { /* Implementación en js/modals.js */ alert('Open Cart (global)'); };
+        window.closeAllModals = () => { /* Implementación en js/modals.js */ alert('Close All Modals (global)'); };
+        window.openCheckout = () => { /* Implementación en js/modals.js */ alert('Open Checkout (global)'); };
+    </script>
+
+</body>
+</html>
