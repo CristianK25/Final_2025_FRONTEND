@@ -1,8 +1,11 @@
-// Genera el HTML de una tarjeta de producto
-export function createProductCard(product) {
-    // Imagen aleatoria basada en ID
+/**
+ * Devuelve el HTML de una tarjeta de producto.
+ * @param {object} product - El objeto del producto.
+ * @returns {string} - El string HTML de la tarjeta.
+ */
+export function getProductCardHTML(product) {
     const image = `https://picsum.photos/seed/${product.id_key}/300/200`;
-    
+
     return `
         <div class="card">
             <img src="${image}" alt="${product.name}" class="card-img">
@@ -13,7 +16,7 @@ export function createProductCard(product) {
                     <span class="price">$${product.price}</span>
                     <span class="stock">Stock: ${product.stock}</span>
                 </div>
-                <button onclick="addToCart(${product.id_key})" class="btn-primary" ${product.stock <= 0 ? 'disabled' : ''}>
+                <button onclick="window.addToCart(${product.id_key})" class="btn-primary" ${product.stock <= 0 ? 'disabled' : ''}>
                     ${product.stock > 0 ? 'Agregar' : 'Agotado'}
                 </button>
             </div>
@@ -21,25 +24,29 @@ export function createProductCard(product) {
     `;
 }
 
-// Inyecta el Navbar en cualquier página
-export function loadNavbar() {
-    const navContainer = document.getElementById('navbar-container');
-    if (!navContainer) return; // Salir si el contenedor no existe
-
-    navContainer.innerHTML = `
-        <nav class="nav-content" style="align-items: center;">
-            <a href="index.html" class="logo">TechStore 🚀</a>
-            
+/**
+ * Devuelve el HTML del Navbar.
+ * @returns {string}
+ */
+export function getNavbarHTML() {
+    return `
+        <nav class="nav-content">
+            <a href="index.html" class="logo">TechStore <span>🚀</span></a>
             <div style="display: flex; align-items: center;">
                 <div class="links">
                     <a href="index.html">Inicio</a>
                     <a href="products.html">Productos</a>
                 </div>
-
-                <div class="actions" style="margin-left: 2rem;">
-                    <button onclick="openLogin()" class="btn-primary" style="background: none; color: var(--dark); border: 1px solid #ccc; margin-right: 10px;">Login</button>
-                    <button onclick="openCart()" class="btn-primary">
-                        🛒 Carrito <span id="cart-count-badge">(0)</span>
+                <!-- Action Buttons: Login / User / Cart -->
+                <div class="actions" style="margin-left: 2rem; display:flex; align-items:center;">
+                    
+                    <!-- Contenedor dinámico para usuario -->
+                    <div id="user-actions">
+                        <button onclick="window.openAuthModal('login')" class="btn-secondary" style="margin-right: 10px;">Iniciar Sesión</button>
+                    </div>
+                    
+                    <button onclick="window.openCart()" class="btn-primary">
+                        🛒 <span id="cart-count-badge">(0)</span>
                     </button>
                 </div>
             </div>
@@ -47,78 +54,137 @@ export function loadNavbar() {
     `;
 }
 
-// Devuelve el HTML de todos los modales para ser inyectado
-export function renderModals() {
+/**
+ * Devuelve el HTML de todos los modales.
+ * @returns {string}
+ */
+export function getModalsHTML() {
     return `
-        <div id="modal-overlay" class="modal-overlay hidden" onclick="closeAllModals()"></div>
+        <!-- Modal Auth (Login / Registro) -->
+        <div id="modal-auth" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
+                
+                <!-- Toggle Tabs -->
+                <div style="display:flex; justify-content:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border);">
+                    <button id="tab-login" onclick="window.switchAuthTab('login')" style="flex:1; background:none; border:none; padding:10px; cursor:pointer; font-weight:bold; color:var(--primary); border-bottom:2px solid var(--primary);">Login</button>
+                    <button id="tab-register" onclick="window.switchAuthTab('register')" style="flex:1; background:none; border:none; padding:10px; cursor:pointer; color:var(--text-muted); border-bottom: 2px solid transparent;">Registro</button>
+                </div>
 
-        <!-- Modal de Login -->
-        <div id="modal-login" class="modal-content hidden">
-            <button class="close-btn" onclick="closeAllModals()">&times;</button>
-            <h2 style="margin-top:0;">Iniciar Sesión</h2>
-            <input type="email" placeholder="Email" class="form-input">
-            <button onclick="alert('Login simulado')" class="btn-primary" style="width: 100%;">Entrar</button>
+                <!-- Formulario Login -->
+                <div id="form-login">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-pass" class="form-input" placeholder="********">
+                    </div>
+                    <button onclick="window.performLogin()" class="btn-primary" style="width:100%;">Ingresar</button>
+                    <p id="msg-login" class="error-msg"></p>
+                </div>
+
+                <!-- Formulario Registro -->
+                <div id="form-register" class="hidden">
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Nombre</label>
+                            <input type="text" id="reg-name" class="form-input">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Apellido</label>
+                            <input type="text" id="reg-lastname" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="reg-email" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="reg-phone" class="form-input" placeholder="Solo números">
+                    </div>
+                     <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="reg-pass" class="form-input" placeholder="Crea una contraseña">
+                    </div>
+                    <button onclick="window.performRegister()" class="btn-primary" style="width:100%;">Registrarse</button>
+                    <p id="msg-register" class="error-msg"></p>
+                </div>
+
+            </div>
         </div>
 
-        <!-- Sidebar de Carrito -->
-        <div id="cart-sidebar" class="cart-sidebar hidden">
+        <!-- Overlay y Sidebar de Carrito -->
+        <div id="modal-cart-overlay" class="modal-overlay hidden" onclick="window.closeAllModals()"></div>
+        <aside id="modal-cart" class="cart-sidebar hidden">
             <div class="cart-header">
                 <h2>Tu Carrito</h2>
-                <button class="close-btn" onclick="closeAllModals()">&times;</button>
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
             </div>
-            <div id="cart-items" class="cart-items">
-                <p>El carrito está vacío</p>
-            </div>
+            <div id="cart-items" class="cart-items"><p>El carrito está vacío</p></div>
             <div class="cart-footer">
-                <button onclick="openCheckout()" class="btn-primary" style="width: 100%;">Ir a Pagar</button>
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span id="cart-total-amount">$0.00</span>
+                </div>
+                <!-- Checkout inicia el proceso, si no está logueado pedirá login -->
+                <button onclick="window.initiateCheckout()" class="btn-primary" style="width: 100%;">Iniciar Compra</button>
+            </div>
+        </aside>
+
+        <!-- Modal de Confirmación de Checkout -->
+        <div id="modal-checkout" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
+                <h2 style="color: var(--primary);">Confirmar Pedido</h2>
+                
+                <div class="checkout-summary">
+                    <p><strong>Cliente:</strong> <span id="checkout-client-name">...</span></p>
+                    <p><strong>Email:</strong> <span id="checkout-client-email">...</span></p>
+                    <hr style="margin: 1rem 0; border: 0; border-top: 1px solid var(--border);">
+                    <p>Total a pagar: <span id="checkout-total" class="price" style="font-size: 1.5rem;">$0</span></p>
+                </div>
+
+                <div id="checkout-actions">
+                    <button onclick="window.confirmOrder()" class="btn-primary" style="width:100%;">Confirmar y Pagar</button>
+                </div>
+                <div id="checkout-status" class="hidden status-msg"></div>
             </div>
         </div>
-
-        <!-- Modal de Checkout -->
-        <div id="modal-checkout" class="modal-content hidden">
-            <button class="close-btn" onclick="closeAllModals()">&times;</button>
-            <h2 style="color:green;">Checkout</h2>
-            <p>Total a pagar: <span id="checkout-total">$0</span></p>
-            <p>¿Confirmar compra?</p>
-            <button onclick="alert('¡Compra realizada!')" class="btn-primary" style="width:100%;">Confirmar</button>
-        </div>
+        
+        <!-- Toast Notification (Bottom Left) -->
+        <div id="toast-container" class="toast-container"></div>
     `;
 }
 
-// Inyecta el Footer en cualquier página
-export function loadFooter() {
-    const footerContainer = document.getElementById('footer');
-    if (!footerContainer) return;
-
-    footerContainer.innerHTML = `
-        <div style="background-color: #1f2937; color: #f3f4f6; padding: 2rem 1rem; margin-top: auto; text-align: center;">
-            <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; max-width: 1200px; margin: 0 auto; text-align: left; padding-bottom: 1rem;">
-                
-                <!-- Columna 1: Sobre Nosotros -->
-                <div style="flex: 1; min-width: 250px;">
-                    <h3 style="color: white; border-bottom: 1px solid #2563eb; padding-bottom: 0.5rem;">Sobre Nosotros</h3>
-                    <p style="color: #d1d5db;">TechStore es tu mejor opción para encontrar componentes y periféricos de última generación. Calidad y servicio garantizados.</p>
+/**
+ * Devuelve el HTML del Footer.
+ * @returns {string}
+ */
+export function getFooterHTML() {
+    return `
+        <div class="site-footer">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>Sobre Nosotros</h3>
+                    <p>TechStore es tu mejor opción para componentes y periféricos.</p>
                 </div>
-
-                <!-- Columna 2: Enlaces Rápidos -->
-                <div style="flex: 1; min-width: 250px;">
-                    <h3 style="color: white; border-bottom: 1px solid #2563eb; padding-bottom: 0.5rem;">Enlaces Rápidos</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li><a href="index.html" style="color: #d1d5db; text-decoration: none; line-height: 1.8;">Inicio</a></li>
-                        <li><a href="products.html" style="color: #d1d5db; text-decoration: none; line-height: 1.8;">Productos</a></li>
-                        <li><a href="#" onclick="openLogin()" style="color: #d1d5db; text-decoration: none; line-height: 1.8;">Login</a></li>
+                <div class="footer-col">
+                    <h3>Enlaces Rápidos</h3>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="products.html">Productos</a></li>
+                        <li><a href="#" onclick="window.openAuthModal('login')">Mi Cuenta</a></li>
                     </ul>
                 </div>
-
-                <!-- Columna 3: Contacto -->
-                <div style="flex: 1; min-width: 250px;">
-                    <h3 style="color: white; border-bottom: 1px solid #2563eb; padding-bottom: 0.5rem;">Contacto</h3>
-                    <p style="color: #d1d5db;">Email: info@techstore.com</p>
-                    <p style="color: #d1d5db;">Redes: 🐦 📸 💼</p>
+                <div class="footer-col">
+                    <h3>Contacto</h3>
+                    <p>Email: info@techstore.com</p>
                 </div>
-
             </div>
-            <div style="border-top: 1px solid #374151; margin-top: 1rem; padding-top: 1.5rem; color: #9ca3af;">
+            <div class="footer-bottom">
                 <p>&copy; 2025 TechStore. Todos los derechos reservados.</p>
             </div>
         </div>
