@@ -11,11 +11,84 @@
         <!-- El navbar se inyectará aquí desde js/components.js -->
     </header>
 
-    <main class="container">
-        <h1 class="text-center my-4">Nuestros Productos</h1>
-        <div id="product-list-container" class="row">
-            <!-- Las tarjetas de productos se inyectarán aquí desde js/main.js usando js/components.js -->
-        </div>
+    <main>
+        <!-- Hero Carousel -->
+        <section id="hero-carousel" class="hero-section">
+            <div class="carousel-container">
+                <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80');">
+                    <div class="hero-content">
+                        <p class="hero-subtitle">Productos de Tecnologia Premium</p>
+                        <h1>Descubre lo último en tecnología de vanguardia. Desde laptops potentes hasta smartphones innovadores, te traemos los mejores dispositivos para mejorar tu vida digital.</h1>
+                        <a href="products.html" class="btn-primary hero-btn">Comprar Ahora</a>
+                    </div>
+                </div>
+                <!-- Additional slides can be added here if needed, keeping it simple for now as per screenshot focus -->
+            </div>
+        </section>
+
+        <!-- Categorías Destacadas -->
+        <section class="container categories-section">
+            <h2 class="section-title text-left">Categorías Destacadas</h2>
+            <div class="categories-grid">
+                <!-- Card 1: Laptops -->
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=600&q=80" alt="Laptops">
+                    <div class="cat-content">
+                        <h3>Laptops</h3>
+                        <p>Laptops de alto rendimiento para trabajo y creatividad</p>
+                        <a href="products.html?cat=laptops" class="link-arrow">Explorar &rarr;</a>
+                    </div>
+                </div>
+                <!-- Card 2: Smartphones -->
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff70?auto=format&fit=crop&w=600&q=80" alt="Smartphones">
+                    <div class="cat-content">
+                        <h3>Smartphones</h3>
+                        <p>Últimos dispositivos insignia con características de vanguardia</p>
+                        <a href="products.html?cat=smartphones" class="link-arrow">Explorar &rarr;</a>
+                    </div>
+                </div>
+                <!-- Card 3: Audio -->
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" alt="Audio">
+                    <div class="cat-content">
+                        <h3>Audio</h3>
+                        <p>Auriculares y bocinas premium para audiófilos</p>
+                        <a href="products.html?cat=audio" class="link-arrow">Explorar &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Acerca de TechStore & Info Cards -->
+        <section class="about-container">
+            <div class="container text-center">
+                <h2 class="section-title-small">Acerca de TechStore</h2>
+                <p class="about-desc">
+                    Estamos dedicados a traerte los mejores productos de tecnología de las marcas líderes del mundo.
+                    Con un enfoque en calidad, innovación y satisfacción del cliente, TechStore es tu destino confiable
+                    para todo lo relacionado con tecnología.
+                </p>
+
+                <div class="info-section-grid">
+                     <div class="info-item">
+                        <div class="icon-circle">📦</div>
+                        <h3>Envío Rápido</h3>
+                        <p>Entrega gratis en pedidos mayores a $1000</p>
+                    </div>
+                    <div class="info-item">
+                        <div class="icon-circle">🛒</div>
+                        <h3>Pago Seguro</h3>
+                        <p>Tu información de pago siempre está protegida</p>
+                    </div>
+                    <div class="info-item">
+                        <div class="icon-circle">👤</div>
+                        <h3>Soporte 24/7</h3>
+                        <p>Nuestro equipo siempre está aquí para ayudarte</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Contenedor único para todos los modales -->

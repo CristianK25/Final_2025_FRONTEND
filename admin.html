@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        :root {
+            --bg-canvas: #0d1117;
+            --bg-sidebar: #161b22;
+            --bg-card: #161b22; /* Same as sidebar or slightly lighter */
+            --bg-card-hover: #21262d;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #58a6ff;
+            --btn-primary: #238636;
+            --btn-primary-hover: #2ea043;
+            --btn-danger: #da3633;
+            --btn-danger-hover: #b62324;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-links li {
+            width: 100%;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-links a.active {
+            background-color: #1f6feb; /* GitHub active blue */
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background-color: transparent;
+            color: var(--btn-danger);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(218, 54, 51, 0.1);
+            border-color: var(--btn-danger);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            background-color: var(--bg-canvas);
+            overflow-y: auto;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-bar h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .user-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+        
+        /* Removed box-shadow to fit flat design, added border */
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--text-primary);
+        }
+
+        /* Ocultar secciones dinámicamente */
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        th {
+            background-color: #21262d; /* Slightly darker header */
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255,255,255,0.02);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--btn-primary);
+            color: white;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--btn-primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #21262d;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+        }
+        
+        /* Modals (Override standard/light styles if necessary) */
+        .modal-card {
+            background-color: var(--bg-sidebar) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+        }
+
+        .form-input {
+            background-color: #0d1117 !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color) !important;
+            outline: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-canvas);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        /* Section Container for Lists */
+        .list-container {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>
+                Admin Panel 🛡️
+                <a href="index.html" target="_blank" title="Ir a la tienda" style="font-size: 1rem; text-decoration: none; margin-left: auto;">↗️</a>
+            </h2>
+            <ul class="nav-links">
+                <li><a href="#" onclick="window.switchSection('dashboard')" id="nav-dashboard" class="active">Dashboard</a></li>
+                <li><a href="#" onclick="window.switchSection('products')" id="nav-products">Productos</a></li>
+                <li><a href="#" onclick="window.switchSection('categories')" id="nav-categories">Categorías</a></li>
+                <li><a href="#" onclick="window.switchSection('orders')" id="nav-orders">Pedidos</a></li>
+                <li><a href="#" onclick="window.switchSection('clients')" id="nav-clients">Clientes</a></li>
+                <li><a href="#" onclick="window.switchSection('diagnostics')" id="nav-diagnostics">Diagnóstico</a></li>
+            </ul>
+            <button class="logout-btn" onclick="window.adminLogout()">Cerrar Sesión</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header-bar">
+                <h1 id="section-title">Dashboard</h1>
+                <div class="user-info">admin@admin.com</div>
+            </header>
+
+            <!-- Section: Dashboard -->
+            <section id="section-dashboard" class="admin-section active">
+                <div class="card-grid">
+                    <div class="stat-card">
+                        <h3>Total Pedidos</h3>
+                        <p class="value" id="stat-orders">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Ventas</h3>
+                        <p class="value" id="stat-sales">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Clientes Registrados</h3>
+                        <p class="value" id="stat-clients">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Productos Activos</h3>
+                        <p class="value" id="stat-products">...</p>
+                    </div>
+                </div>
+                <div class="list-container">
+                    <h3>Últimos Pedidos</h3>
+                    <div id="dashboard-orders-list">Cargando...</div>
+                </div>
+            </section>
+
+            <!-- Section: Products -->
+            <section id="section-products" class="admin-section">
+                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <h3>Gestión de Productos</h3>
+                    <button class="btn-primary" onclick="window.openProductModal()">+ Nuevo Producto</button>
+                </div>
+                <div class="table-container">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody><!-- JS --></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Section: Categories -->
+            <section id="section-categories" class="admin-section">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <h3>Gestión de Categorías</h3>
+                    <button class="btn-primary" onclick="window.openCategoryModal()">+ Nueva Categoría</button>
+                </div>
+                <div class="table-container">
+                    <table id="categories-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody><!-- JS --></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section: Orders -->
+            <section id="section-orders" class="admin-section">
+                <h3>Gestión de Pedidos</h3>
+                 <div class="table-container">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody><!-- JS --></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Section: Clients -->
+            <section id="section-clients" class="admin-section">
+                <h3>Gestión de Clientes</h3>
+                <p>Próximamente...</p>
+            </section>
+            
+            <!-- Section: Diagnostics -->
+            <section id="section-diagnostics" class="admin-section">
+                <h3>Diagnóstico del Sistema</h3>
+                 <div class="stat-card" style="margin-top: 1rem;">
+                    <button class="btn-primary" onclick="window.runHealthCheck()">Ejecutar Diagnóstico (Health Check)</button>
+                    <pre id="health-result" style="background:#f3f4f6; padding:1rem; margin-top:1rem; border-radius:5px;">Esperando ejecución...</pre>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Admin Modals -->
+    <div id="admin-modal-overlay" class="modal-overlay hidden" style="z-index: 1000;">
+        <!-- Product Modal -->
+        <div id="modal-product" class="modal-card hidden">
+            <button class="close-btn" onclick="window.closeAdminModals()">&times;</button>
+            <h2 id="modal-product-title">Nuevo Producto</h2>
+            <form onsubmit="event.preventDefault(); window.saveProduct();">
+                <input type="hidden" id="prod-id">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="prod-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" id="prod-price" class="form-input" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" id="prod-stock" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría ID</label>
+                    <input type="number" id="prod-cat" class="form-input" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">Guardar</button>
+            </form>
+        </div>
+
+        <!-- Category Modal -->
+        <div id="modal-category" class="modal-card hidden">
+            <button class="close-btn" onclick="window.closeAdminModals()">&times;</button>
+            <h2 id="modal-category-title">Nueva Categoría</h2>
+            <form onsubmit="event.preventDefault(); window.saveCategory();">
+                <input type="hidden" id="cat-id">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="cat-name" class="form-input" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/api.js"></script>
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

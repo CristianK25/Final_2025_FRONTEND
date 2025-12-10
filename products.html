@@ -10,11 +10,65 @@
         <!-- El navbar se inyectará aquí desde js/components.js -->
     </header>
 
-    <main class="container">
-        <h1>Catálogo de Productos</h1>
-        <div id="product-list" class="product-grid">
-            <p>Cargando productos...</p>
-        </div>
+    <main class="container products-layout">
+        <aside class="filters-sidebar">
+            <div class="filters-header">
+                <h3>Filtros</h3>
+                <button class="btn-reset" onclick="window.resetFilters()">Reiniciar</button>
+            </div>
+            
+            <!-- Search -->
+            <div class="filter-group">
+                <label>Buscar</label>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="store-search" placeholder="Buscar productos...">
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="filter-group">
+                <label>Categorías</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="laptops"> Laptops
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="smartphones"> Smartphones
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="tablets"> Tablets
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="audio"> Audio
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="wearables"> Wearables
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="accesorios"> Accesorios
+                    </label>
+                </div>
+            </div>
+
+            <!-- Price -->
+            <div class="filter-group">
+                <label>Rango de Precio: $0 - $5000</label>
+                <input type="range" min="0" max="5000" id="price-range" class="price-slider">
+                <div class="price-labels">
+                    <span>$0</span>
+                    <span>$5000</span>
+                </div>
+            </div>
+        </aside>
+
+        <section class="products-main">
+            <h1 style="margin-top:0;">Products</h1>
+            <div id="product-list" class="product-grid">
+                <!-- Products will be injected here -->
+                <p>Cargando productos...</p>
+            </div>
+        </section>
     </main>
 
     <!-- Contenedor único para todos los modales -->

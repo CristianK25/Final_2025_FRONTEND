@@ -8,9 +8,9 @@ export function getProductCardHTML(product) {
 
     return `
         <div class="card">
-            <img src="${image}" alt="${product.name}" class="card-img">
+            <img src="${image}" alt="${product.name}" class="card-img" onclick="window.openProductDetail(${product.id_key})" style="cursor:pointer;">
             <div class="card-body">
-                <h3>${product.name}</h3>
+                <h3 onclick="window.openProductDetail(${product.id_key})" style="cursor:pointer;">${product.name}</h3>
                 <p class="category">ID: ${product.id_key}</p>
                 <div class="price-row">
                     <span class="price">$${product.price}</span>
@@ -29,25 +29,40 @@ export function getProductCardHTML(product) {
  * @returns {string}
  */
 export function getNavbarHTML() {
+    const path = window.location.pathname;
+    const isProducts = path.includes('products.html');
+    const isHome = !isProducts; // Default to home if not products (simplification for this use case)
+
     return `
         <nav class="nav-content">
-            <a href="index.html" class="logo">TechStore <span>🚀</span></a>
-            <div style="display: flex; align-items: center;">
-                <div class="links">
-                    <a href="index.html">Inicio</a>
-                    <a href="products.html">Productos</a>
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                     <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon-logo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                     </div>
+                     TechStore
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link-item ${isHome ? 'active' : ''}">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        Inicio
+                    </a>
+                    <a href="products.html" class="nav-link-item ${isProducts ? 'active' : ''}">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        Productos
+                    </a>
                 </div>
-                <!-- Action Buttons: Login / User / Cart -->
-                <div class="actions" style="margin-left: 2rem; display:flex; align-items:center;">
-                    
-                    <!-- Contenedor dinámico para usuario -->
-                    <div id="user-actions">
-                        <button onclick="window.openAuthModal('login')" class="btn-secondary" style="margin-right: 10px;">Iniciar Sesión</button>
-                    </div>
-                    
-                    <button onclick="window.openCart()" class="btn-primary">
-                        🛒 <span id="cart-count-badge">(0)</span>
-                    </button>
+            </div>
+
+            <div class="nav-right">
+                <button onclick="window.openCart()" class="icon-btn" title="Carrito">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <span id="cart-count-badge" class="badge hidden">0</span>
+                </button>
+                <div id="user-actions">
+                     <button onclick="window.openAuthModal('login')" class="icon-btn" title="Usuario">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                     </button>
                 </div>
             </div>
         </nav>
@@ -151,6 +166,100 @@ export function getModalsHTML() {
                     <button onclick="window.confirmOrder()" class="btn-primary" style="width:100%;">Confirmar y Pagar</button>
                 </div>
                 <div id="checkout-status" class="hidden status-msg"></div>
+            </div>
+        </div>
+        
+        <!-- Modal Perfil de Usuario -->
+        <div id="modal-profile" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
+                <h2 style="color: var(--primary);">Mi Perfil</h2>
+                <p class="text-sm">Actualiza tus datos personales.</p>
+                
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="profile-name" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" id="profile-lastname" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="profile-phone" class="form-input">
+                </div>
+                <!-- Email read-only -->
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="profile-email" class="form-input" disabled style="opacity: 0.7; cursor: not-allowed;">
+                    <small style="color:var(--text-muted)">El email no se puede cambiar.</small>
+                </div>
+
+                <button onclick="window.saveProfile()" class="btn-primary" style="width:100%; margin-top:1rem;">Guardar Cambios</button>
+                <div id="profile-status" class="error-msg" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- Modal Mis Pedidos -->
+        <div id="modal-orders" class="modal-overlay hidden">
+            <div class="modal-card" style="max-width: 600px; width: 90%;">
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
+                <h2 style="color: var(--primary);">Mis Pedidos</h2>
+                <div id="orders-list" class="orders-list">
+                    <p class="text-muted">Cargando pedidos...</p>
+                </div>
+                <button onclick="window.closeAllModals()" class="btn-secondary" style="width:100%; margin-top:1rem;">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Modal Detalle Producto -->
+        <div id="modal-product-detail" class="modal-overlay hidden">
+            <div class="modal-card" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;">
+                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
+                
+                <div class="product-detail-layout" style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <img id="pd-image" src="" alt="Producto" style="width: 100%; border-radius: 8px; object-fit: cover;">
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <h2 id="pd-name" style="color: var(--primary); margin-top:0;"></h2>
+                        <p class="price" id="pd-price" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></p>
+                        <p style="margin-bottom: 1rem;">Stock: <span id="pd-stock" style="font-weight: bold;"></span></p>
+                        <p>Categoría: <span id="pd-category"></span></p>
+                        
+                        <div style="margin-top: 2rem;">
+                            <button id="pd-add-btn" class="btn-primary" style="width: 100%;">Agregar al Carrito</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-reviews-section" style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Reseñas de Clientes</h3>
+                    
+                    <div id="pd-reviews-list" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <p class="text-muted">Cargando reseñas...</p>
+                    </div>
+
+                    <div class="add-review-form" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="margin-top: 0;">Escribe una reseña</h4>
+                        <div class="form-group">
+                            <label>Calificación</label>
+                            <select id="new-review-rating" class="form-input">
+                               <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                               <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                               <option value="3">⭐⭐⭐ (3/5)</option>
+                               <option value="2">⭐⭐ (2/5)</option>
+                               <option value="1">⭐ (1/5)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Comentario</label>
+                            <textarea id="new-review-comment" class="form-input" rows="3" placeholder="¿Qué te pareció el producto?"></textarea>
+                        </div>
+                        <button onclick="window.submitReview()" class="btn-primary">Publicar Reseña</button>
+                        <div id="review-status" class="status-msg"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
