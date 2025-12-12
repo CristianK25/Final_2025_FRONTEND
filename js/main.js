@@ -1,5 +1,5 @@
 import { getNavbarHTML, getFooterHTML, getModalsHTML, getProductCardHTML } from './components.js';
-import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews } from './api.js';
+import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews, getProducts } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Renderizado de la UI Estática ---
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.performLogin = async () => {
         const email = document.getElementById('login-email').value.trim();
-        const pass = document.getElementById('login-pass').value.trim(); // Simulada
+        const name = document.getElementById('login-name').value.trim();
         const msg = document.getElementById('msg-login');
 
         if (!email) {
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Admin Check ---
-        if (email === 'admin@admin.com' && pass === 'admin123') {
+        if (email === 'admin@admin.com' && name === 'admin') {
             msg.textContent = "Accediendo al Panel...";
             msg.style.color = "blue";
             // Guardar sesión admin simulada
@@ -215,19 +215,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentUser) {
             container.innerHTML = `
-                <div style="display:flex; align-items:center;">
-                    <a href="#" onclick="window.openProfileModal()" style="margin-right:15px; font-weight:600; text-decoration:none; color:var(--text-main);">
+                <div style="display:flex; align-items:center; gap: 1rem;">
+                    <a href="#" onclick="window.openProfileModal()" class="nav-link-item">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Hola, ${currentUser.name}
                     </a>
-                    <a href="#" onclick="window.openOrdersModal()" style="margin-right:15px; font-size:0.9rem; text-decoration:none; color:var(--primary);">
+                    <a href="#" onclick="window.openOrdersModal()" class="nav-link-item">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                         Mis Pedidos
                     </a>
-                    <button onclick="window.logout()" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size:0.8rem;">Salir</button>
+                    <button onclick="window.logout()" class="nav-link-item">
+                        <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        Salir
+                    </button>
                 </div>
             `;
         } else {
             container.innerHTML = `
-                <button onclick="window.openAuthModal('login')" class="btn-secondary" style="margin-right: 10px;">Iniciar Sesión</button>
+                <button onclick="window.openAuthModal('login')" class="nav-link-item">
+                    <svg viewBox="0 0 24 24" fill="none" class="nav-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                    Iniciar Sesión
+                </button>
             `;
         }
     }
@@ -394,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Buscar producto (idealmente fetch individual, aqui reusamos lista o fetcheamos)
         // Como no tenemos lista global expuesta facil, hacemos fetch
-        const products = await fetchData('/products?skip=0&limit=1000');
+        const products = await getProducts(0, 1000);
         const product = products.find(p => p.id_key === id);
 
         if (!product) {
@@ -547,8 +555,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500); // 3s delay + 0.3s fadeOut + buffer
     };
 
+
     window.addToCart = (productId) => {
-        let name, price;
+        let name, price, image;
 
         // Intentar obtener datos del DOM (Grid de productos)
         const btn = document.querySelector(`button[onclick="window.addToCart(${productId})"]`);
@@ -557,10 +566,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (productCard) {
             name = productCard.querySelector('h3').textContent;
             price = parseFloat(productCard.querySelector('.price').textContent.replace('$', ''));
+            image = productCard.querySelector('img').src;
         } else if (currentProduct && currentProduct.id_key === productId) {
             // Fallback: Si estamos en el modal de detalle
             name = currentProduct.name;
             price = currentProduct.price;
+            image = `https://picsum.photos/seed/${productId}/300/200`; // Reconstruct or get from currProduct
         } else {
             console.error("No se pudo identificar el producto para agregar al carrito.");
             return;
@@ -570,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingItem) {
             existingItem.quantity++;
         } else {
-            cart.push({ id: productId, name, price, quantity: 1 });
+            cart.push({ id: productId, name, price, quantity: 1, image });
         }
 
         saveCart(); // Persistir
@@ -587,24 +598,87 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartTotalAmount) cartTotalAmount.textContent = `$${total.toFixed(2)}`;
 
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p>El carrito está vacío</p>';
+            cartItemsContainer.innerHTML = '<p style="text-align:center; padding:1rem;">El carrito está vacío</p>';
+            if (cartTotalAmount) cartTotalAmount.textContent = '$0.00';
+            // Update summary if present (new design)
+            updateCartSummary(0);
         } else {
             cartItemsContainer.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        <small>x${item.quantity}</small>
+                <div class="cart-item-card">
+                    <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" class="cart-img">
+                    <div class="cart-details">
+                        <div class="cart-row-top">
+                            <h4>${item.name}</h4>
+                            <span class="cart-price">$${item.price}</span>
+                        </div>
+                        <div class="cart-row-bottom">
+                            <div class="qty-control">
+                                <button class="btn-qty" onclick="window.updateCartItemQuantity(${item.id}, -1)">−</button>
+                                <span class="qty-val">${item.quantity}</span>
+                                <button class="btn-qty" onclick="window.updateCartItemQuantity(${item.id}, 1)">+</button>
+                            </div>
+                            <button class="btn-delete" onclick="window.removeCartItem(${item.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
                     </div>
-                    <span>$${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
             `).join('');
+
+            // Calculate totals
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            updateCartSummary(subtotal);
         }
     }
 
+    function updateCartSummary(subtotal) {
+        // Find or Create summary container in footer if not exists in HTML (it will be injected in css step or we assume structure)
+        // Adjusting renderCartUI to inject summary as well if needed, or update existing elements.
+        // The original HTML had a simple Total row. The new design needs Subtotal, Tax, Total.
+        // We will inject a summary block into the footer if it doesn't match our new structure.
+
+        const footer = document.querySelector('.cart-footer');
+        if (footer) {
+            // El total es simplemente la suma de los productos (subtotal)
+            const total = subtotal;
+
+            footer.innerHTML = `
+                <div class="cart-summary-details">
+                    <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+                </div>
+                <button onclick="window.initiateCheckout()" class="btn-primary" style="width: 100%; margin-top:1rem;">Proceder al Pago &rarr;</button>
+             `;
+        }
+    }
+
+    window.updateCartItemQuantity = (id, delta) => {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            const newQty = item.quantity + delta;
+            if (newQty >= 1) {
+                item.quantity = newQty;
+                saveCart();
+                renderCartUI();
+            }
+        }
+    };
+
+    window.removeCartItem = (id) => {
+        cart = cart.filter(i => i.id !== id);
+        saveCart();
+        renderCartUI();
+    };
+
     function updateCartBadgeUI() {
         if (!cartCountBadge) return;
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        cartCountBadge.textContent = `(${totalItems})`;
+        const distinctItems = cart.length;
+        cartCountBadge.textContent = distinctItems;
+
+        if (distinctItems > 0) {
+            cartCountBadge.classList.remove('hidden');
+        } else {
+            cartCountBadge.classList.add('hidden');
+        }
     }
 
     window.initiateCheckout = () => {
@@ -623,27 +697,232 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Checkout Wizard Logic ---
+    let currentCheckoutStep = 1;
+
+    function updateCheckoutSteps() {
+        for (let i = 1; i <= 3; i++) {
+            const indicator = document.getElementById(`step-indicator-${i}`);
+            const content = document.getElementById(`checkout-step-${i}`);
+
+            // Update Indicator State
+            if (indicator) {
+                const circle = indicator.querySelector('.step-circle');
+                const textSpan = indicator.querySelector('.step-text');
+                const checkSpan = indicator.querySelector('.step-check');
+
+                // Reset classes
+                indicator.classList.remove('active', 'completed');
+                if (checkSpan) checkSpan.classList.add('hidden');
+                if (textSpan) textSpan.classList.remove('hidden');
+
+                if (i < currentCheckoutStep) {
+                    // Paso completado
+                    indicator.classList.add('completed');
+                    if (textSpan) textSpan.classList.add('hidden');
+                    if (checkSpan) checkSpan.classList.remove('hidden');
+                } else if (i === currentCheckoutStep) {
+                    // Paso actual
+                    indicator.classList.add('active');
+                }
+                // Else: paso futuro (default style)
+            }
+
+            // Update Content Visibility
+            if (content) {
+                if (i === currentCheckoutStep) content.classList.remove('hidden');
+                else content.classList.add('hidden');
+            }
+
+            // Update Footer Visibility
+            const footer = document.getElementById(`footer-step-${i}`);
+            if (footer) {
+                if (i === currentCheckoutStep) footer.classList.remove('hidden');
+                else footer.classList.add('hidden');
+            }
+        }
+
+        // Update Lines
+        const line1 = document.getElementById('line-1');
+        const line2 = document.getElementById('line-2');
+
+        if (line1) {
+            if (currentCheckoutStep > 1) line1.classList.add('filled');
+            else line1.classList.remove('filled');
+        }
+        if (line2) {
+            if (currentCheckoutStep > 2) line2.classList.add('filled');
+            else line2.classList.remove('filled');
+        }
+    }
+
+    window.checkoutNextStep = (step) => {
+        // Validation Logic
+        if (step > currentCheckoutStep) {
+            if (currentCheckoutStep === 1) {
+                // Validate Shipping
+                const name = document.getElementById('chk-name').value.trim();
+                const lastname = document.getElementById('chk-lastname').value.trim();
+                const phone = document.getElementById('chk-phone').value.trim();
+                const address = document.getElementById('chk-address').value.trim();
+                const city = document.getElementById('chk-city').value.trim();
+                const zip = document.getElementById('chk-zip').value.trim();
+
+                if (!name || !lastname || !phone || !address || !city || !zip) {
+                    alert("Por favor completa todos los campos obligatorios.");
+                    return;
+                }
+
+                // Update Summary for Step 3
+                const reviewShipping = document.getElementById('review-shipping');
+                if (reviewShipping) {
+                    reviewShipping.innerHTML = `
+                        <strong>${name} ${lastname}</strong><br>
+                        ${address}<br>
+                        ${city}, ${zip}<br>
+                        Tel: ${phone}
+                     `;
+                }
+            }
+            if (currentCheckoutStep === 2) {
+                // Validate Payment
+                const cardNum = document.getElementById('chk-card-number').value.trim();
+                const cardName = document.getElementById('chk-card-name').value.trim();
+                const cardExp = document.getElementById('chk-card-expiry').value.trim();
+                const cardCvv = document.getElementById('chk-card-cvv').value.trim();
+
+                if (!cardNum || !cardName || !cardExp || !cardCvv) {
+                    alert("Por favor completa los datos de pago.");
+                    return;
+                }
+
+                // Update Summary for Step 3
+                const reviewPayment = document.getElementById('review-payment');
+                if (reviewPayment) {
+                    reviewPayment.innerHTML = `
+                        Tarjeta terminada en **** ${cardNum.slice(-4)}<br>
+                        Titular: ${cardName}
+                     `;
+                }
+            }
+        }
+
+        currentCheckoutStep = step;
+        updateCheckoutSteps();
+
+        // Update Totals if moving to step 3
+        if (step === 3) {
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const subElem = document.getElementById('review-subtotal');
+            const totElem = document.getElementById('review-total');
+            if (subElem) subElem.textContent = `$${total.toFixed(2)}`;
+            if (totElem) totElem.textContent = `$${total.toFixed(2)}`;
+        }
+    };
+
+    // --- Payment Input Formatting ---
+    function setupPaymentInputFormatting() {
+        const numberInput = document.getElementById('chk-card-number');
+        const expiryInput = document.getElementById('chk-card-expiry');
+        const cvvInput = document.getElementById('chk-card-cvv');
+
+        // Prevent attaching multiple times if function called repeatedly
+        if (numberInput && numberInput.dataset.formatted === 'true') return;
+
+        if (numberInput) {
+            numberInput.dataset.formatted = 'true';
+            numberInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length > 16) value = value.slice(0, 16); // Limit to 16 digits
+
+                // Add space every 4 digits
+                let formattedValue = '';
+                for (let i = 0; i < value.length; i++) {
+                    if (i > 0 && i % 4 === 0) formattedValue += ' ';
+                    formattedValue += value[i];
+                }
+                e.target.value = formattedValue;
+            });
+        }
+
+        if (expiryInput) {
+            expiryInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length > 4) value = value.slice(0, 4); // Limit to 4 digits
+
+                if (value.length >= 2) {
+                    e.target.value = value.slice(0, 2) + '/' + value.slice(2);
+                } else {
+                    e.target.value = value;
+                }
+            });
+            expiryInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value.endsWith('/')) {
+                    e.target.value = e.target.value.slice(0, -1);
+                }
+            });
+        }
+
+        if (cvvInput) {
+            cvvInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 3) value = value.slice(0, 3);
+                e.target.value = value;
+            });
+        }
+    }
+
     function openCheckoutConfirmation() {
         if (!currentUser || !checkoutModal) return;
 
-        document.getElementById('checkout-client-name').textContent = `${currentUser.name} ${currentUser.lastname}`;
-        document.getElementById('checkout-client-email').textContent = currentUser.email;
+        // Reset Step
+        currentCheckoutStep = 1;
+        updateCheckoutSteps();
 
-        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        if (checkoutTotalSpan) checkoutTotalSpan.textContent = `$${total.toFixed(2)}`;
+        // Hide Status
+        const statusDiv = document.getElementById('checkout-status');
+        if (statusDiv) statusDiv.classList.add('hidden');
+
+        // Pre-fill Data
+        if (document.getElementById('chk-name')) document.getElementById('chk-name').value = currentUser.name || '';
+        if (document.getElementById('chk-lastname')) document.getElementById('chk-lastname').value = currentUser.lastname || '';
+        if (document.getElementById('chk-email')) document.getElementById('chk-email').value = currentUser.email || '';
+        if (document.getElementById('chk-phone')) document.getElementById('chk-phone').value = currentUser.telephone || '';
+
+        // Clear address fields (or load from somewhere if we had them)
+        if (document.getElementById('chk-address')) document.getElementById('chk-address').value = '';
+        if (document.getElementById('chk-city')) document.getElementById('chk-city').value = '';
+        if (document.getElementById('chk-zip')) document.getElementById('chk-zip').value = '';
 
         checkoutModal.classList.remove('hidden');
+
+        // Initialize Payment Formatting
+        setupPaymentInputFormatting();
     }
 
     window.confirmOrder = async () => {
         const statusDiv = document.getElementById('checkout-status');
-        const actionsDiv = document.getElementById('checkout-actions');
+        const step3Div = document.getElementById('checkout-step-3');
+        const footer3 = document.getElementById('footer-step-3');
 
-        actionsDiv.classList.add('hidden');
-        statusDiv.classList.remove('hidden');
-        statusDiv.innerHTML = '<p style="color:var(--primary);">Procesando orden...</p>';
+        if (step3Div) step3Div.classList.add('hidden');
+        if (footer3) footer3.classList.add('hidden'); // Hide buttons
+
+        if (statusDiv) {
+            statusDiv.classList.remove('hidden');
+            statusDiv.innerHTML = '<p style="color:var(--primary); text-align:center;">Procesando orden...</p>';
+        }
 
         try {
+            // Optional: Update User Phone if changed
+            const newPhone = document.getElementById('chk-phone').value.trim();
+            if (newPhone && newPhone !== currentUser.telephone) {
+                await updateClient(currentUser.id_key, { telephone: newPhone });
+                // Update local state lightly
+                currentUser.telephone = newPhone;
+                localStorage.setItem('user_v1', JSON.stringify(currentUser));
+            }
+
             const orderPayload = {
                 client_id: currentUser.id_key,
                 items: cart.map(i => ({ product_id: i.id, quantity: i.quantity }))
@@ -653,23 +932,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (resp && resp.id_key) {
                 statusDiv.innerHTML = `
-                    <h3 style="color:green;">¡Gracias por tu compra!</h3>
-                    <p>ID de Orden: <strong>${resp.id_key}</strong></p>
-                    <button onclick="window.closeAllModals()" class="btn-secondary" style="margin-top:1rem;">Cerrar</button>
+                    <div style="text-align:center; padding:2rem;">
+                        <h3 style="color:green; font-size:2rem; margin-bottom:1rem;">¡Pago Exitoso!</h3>
+                        <p style="font-size:1.2rem;">Gracias por tu compra.</p>
+                        <p class="text-muted">Tu orden #${resp.id_key} ha sido confirmada.</p>
+                        <button onclick="window.closeAllModals()" class="btn-primary" style="margin-top:2rem;">Cerrar</button>
+                    </div>
                 `;
                 cart = [];
-                saveCart(); // Limpiar localStorage también
+                saveCart();
                 renderCartUI();
             } else {
                 throw new Error("Respuesta backend inválida");
             }
         } catch (err) {
             console.error(err);
-            statusDiv.innerHTML = `
-                <h3 style="color:red;">Error</h3>
-                <p>No se pudo procesar la orden.</p>
-                <button onclick="window.closeAllModals()" class="btn-secondary">Cerrar</button>
-            `;
+            if (statusDiv) {
+                statusDiv.innerHTML = `
+                    <div style="text-align:center;">
+                        <h3 style="color:red;">Error</h3>
+                        <p>No se pudo procesar la orden.</p>
+                        <button onclick="window.closeAllModals()" class="btn-secondary">Cerrar</button>
+                    </div>
+                `;
+            }
         }
     };
 
@@ -677,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const init = async () => {
         // Auth check
         if (currentUser) {
-            updateNavbarUser();
+            updateNavbarUI();
         }
 
         // Logic split based on page existence
@@ -701,7 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '<p class="text-center col-12">Cargando productos...</p>';
 
         try {
-            const products = await fetchData('/products?skip=0&limit=100');
+            const products = await getProducts(0, 100);
 
             if (!products || products.length === 0) {
                 container.innerHTML = '<p class="text-center col-12">No hay productos disponibles.</p>';
@@ -723,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '<p>Cargando destacados...</p>';
         try {
             // Get all products and pick 4 random or latest
-            const products = await fetchData('/products?skip=0&limit=100');
+            const products = await getProducts(0, 100);
             if (products && products.length > 0) {
                 container.innerHTML = '';
                 // Sort by ID descending (newest) and take 4

@@ -93,8 +93,8 @@ export function getModalsHTML() {
                         <input type="email" id="login-email" class="form-input" placeholder="tu@email.com">
                     </div>
                     <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="login-pass" class="form-input" placeholder="********">
+                        <label>Nombre</label>
+                        <input type="text" id="login-name" class="form-input" placeholder="Tu Nombre">
                     </div>
                     <button onclick="window.performLogin()" class="btn-primary" style="width:100%;">Ingresar</button>
                     <p id="msg-login" class="error-msg"></p>
@@ -119,10 +119,6 @@ export function getModalsHTML() {
                     <div class="form-group">
                         <label>Teléfono</label>
                         <input type="tel" id="reg-phone" class="form-input" placeholder="Solo números">
-                    </div>
-                     <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="reg-pass" class="form-input" placeholder="Crea una contraseña">
                     </div>
                     <button onclick="window.performRegister()" class="btn-primary" style="width:100%;">Registrarse</button>
                     <p id="msg-register" class="error-msg"></p>
@@ -149,22 +145,159 @@ export function getModalsHTML() {
             </div>
         </aside>
 
-        <!-- Modal de Confirmación de Checkout -->
+        <!-- Modal de Confirmación de Checkout (Wizard) -->
         <div id="modal-checkout" class="modal-overlay hidden">
-            <div class="modal-card">
-                <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
-                <h2 style="color: var(--primary);">Confirmar Pedido</h2>
-                
-                <div class="checkout-summary">
-                    <p><strong>Cliente:</strong> <span id="checkout-client-name">...</span></p>
-                    <p><strong>Email:</strong> <span id="checkout-client-email">...</span></p>
-                    <hr style="margin: 1rem 0; border: 0; border-top: 1px solid var(--border);">
-                    <p>Total a pagar: <span id="checkout-total" class="price" style="font-size: 1.5rem;">$0</span></p>
+            <div class="modal-card checkout-modal-card">
+                <div class="checkout-header">
+                    <div class="header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px; color:#4ade80; margin-right:10px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+                        <h2 style="color: var(--text-main); margin:0; font-size:1.2rem;">Checkout Seguro</h2>
+                    </div>
+                    <button class="close-btn" onclick="window.closeAllModals()">&times;</button>
                 </div>
 
-                <div id="checkout-actions">
-                    <button onclick="window.confirmOrder()" class="btn-primary" style="width:100%;">Confirmar y Pagar</button>
+                <!-- Wizard Progress -->
+                <div class="checkout-steps">
+                    <div class="step active" id="step-indicator-1">
+                        <div class="step-circle">
+                            <span class="step-text">1</span>
+                            <span class="step-check hidden">✓</span>
+                        </div>
+                        <span>Envío</span>
+                    </div>
+                    <!-- Line 1-2 -->
+                    <div class="step-line" id="line-1"></div>
+                    
+                    <div class="step" id="step-indicator-2">
+                        <div class="step-circle">
+                            <span class="step-text">2</span>
+                            <span class="step-check hidden">✓</span>
+                        </div>
+                        <span>Pago</span>
+                    </div>
+                    <!-- Line 2-3 -->
+                    <div class="step-line" id="line-2"></div>
+
+                    <div class="step" id="step-indicator-3">
+                         <div class="step-circle">
+                            <span class="step-text">3</span>
+                            <span class="step-check hidden">✓</span>
+                        </div>
+                        <span>Confirmación</span>
+                    </div>
                 </div>
+
+                <div class="checkout-body">
+                    <!-- Step 1: Shipping -->
+                    <div id="checkout-step-1" class="checkout-step-content">
+                        <h3>Información de Envío</h3>
+                        <p class="text-sm text-muted">Ingresa los detalles de entrega para tu pedido</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nombre *</label>
+                                <input type="text" id="chk-name" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Apellido *</label>
+                                <input type="text" id="chk-lastname" class="form-input">
+                            </div>
+                        </div>
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label>Teléfono *</label>
+                                <input type="tel" id="chk-phone" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="chk-email" class="form-input" disabled style="opacity:0.7;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección *</label>
+                            <input type="text" id="chk-address" class="form-input" placeholder="Calle, Altura, Piso...">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ciudad *</label>
+                                <input type="text" id="chk-city" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Código Postal *</label>
+                                <input type="text" id="chk-zip" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Payment -->
+                    <div id="checkout-step-2" class="checkout-step-content hidden">
+                        <h3>Método de Pago</h3>
+                         <p class="text-sm text-muted">Todos los pagos son seguros y encriptados</p>
+                        
+                        <div class="form-group">
+                            <label>Número de Tarjeta *</label>
+                            <div style="position:relative;">
+                                 <input type="text" id="chk-card-number" class="form-input" placeholder="0000 0000 0000 0000">
+                                 <span style="position:absolute; right:10px; top:10px;">💳</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                             <label>Nombre en la Tarjeta *</label>
+                            <input type="text" id="chk-card-name" class="form-input" placeholder="COMO FIGURA EN LA TARJETA" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Vencimiento *</label>
+                                <input type="text" id="chk-card-expiry" class="form-input" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV *</label>
+                                <input type="text" id="chk-card-cvv" class="form-input" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Confirmation -->
+                    <div id="checkout-step-3" class="checkout-step-content hidden">
+                        <h3>Revisar Pedido</h3>
+                         <p class="text-sm text-muted">Verifica que toda la información sea correcta antes de confirmar</p>
+                        
+                        <div class="review-box">
+                            <h4 style="display:flex; justify-content:space-between;">📍 Envío <a href="#" onclick="window.checkoutNextStep(1); return false;" style="font-size:0.8rem; color:var(--accent);">Editar</a></h4>
+                            <p id="review-shipping" class="text-muted text-sm" style="line-height:1.6;">...</p>
+                        </div>
+                        <div class="review-box">
+                             <h4 style="display:flex; justify-content:space-between;">💳 Pago <a href="#" onclick="window.checkoutNextStep(2); return false;" style="font-size:0.8rem; color:var(--accent);">Editar</a></h4>
+                            <p id="review-payment" class="text-muted text-sm">...</p>
+                        </div>
+                        
+                        <div class="review-box summary-total">
+                            <div class="summary-row"><span>Subtotal (Productos)</span><span id="review-subtotal">$0.00</span></div>
+                            <div class="summary-row"><span>Envío</span><span style="color:var(--primary);">GRATIS</span></div>
+                            <div class="summary-row total" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid var(--border); font-size:1.2rem;"><span>Total</span><span id="review-total">$0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer with Navigation Buttons -->
+                <div class="checkout-footer">
+                    <!-- Footer for Step 1 -->
+                    <div id="footer-step-1" class="footer-step-buttons" style="display:flex; justify-content:space-between; width:100%;">
+                        <button onclick="window.closeAllModals()" class="btn-ghost">Cancelar</button>
+                        <button onclick="window.checkoutNextStep(2)" class="btn-primary">Continuar &rarr;</button>
+                    </div>
+                    <!-- Footer for Step 2 -->
+                    <div id="footer-step-2" class="footer-step-buttons hidden" style="display:flex; justify-content:space-between; width:100%;">
+                         <button onclick="window.checkoutNextStep(1)" class="btn-ghost">&larr; Atrás</button>
+                         <button onclick="window.checkoutNextStep(3)" class="btn-primary">Continuar &rarr;</button>
+                    </div>
+                    <!-- Footer for Step 3 -->
+                    <div id="footer-step-3" class="footer-step-buttons hidden" style="display:flex; justify-content:space-between; width:100%;">
+                         <button onclick="window.checkoutNextStep(2)" class="btn-ghost">&larr; Atrás</button>
+                         <button onclick="window.confirmOrder()" class="btn-primary">Confirmar Pedido</button>
+                    </div>
+                </div>
+                
                 <div id="checkout-status" class="hidden status-msg"></div>
             </div>
         </div>
