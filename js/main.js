@@ -1,5 +1,5 @@
 import { getNavbarHTML, getFooterHTML, getModalsHTML, getProductCardHTML } from './components.js';
-import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews, getProducts } from './api.js';
+import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews, getProducts, createBill, createOrderDetail } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Renderizado de la UI Estática ---
@@ -923,38 +923,105 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('user_v1', JSON.stringify(currentUser));
             }
 
-            const orderPayload = {
-                client_id: currentUser.id_key,
-                items: cart.map(i => ({ product_id: i.id, quantity: i.quantity }))
+            const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            // --- PASO 1: Crear Factura (Bill) ---
+            // Se asume backend retorna { id_key: <int>, ... }
+            const billData = {
+                // 1. REQUERIDO: Un string único. Usamos Date.now() para que no se repita.
+                bill_number: `F-${Date.now()}`,
+
+                // 2. REQUERIDO: Solo la fecha YYYY-MM-DD (cortamos la parte de la hora)
+                date: new Date().toISOString().split('T')[0],
+
+                // 3. REQUERIDO: El monto total (NO 'amount')
+                total: totalAmount,
+
+                // 4. REQUERIDO: Un valor válido del Enum. 
+                // Si falla, revisa backend/models/enums.py para ver los valores permitidos (ej: "CASH", "DEBIT").
+                payment_type: 4,
+
+                // 5. REQUERIDO: ID del cliente
+                client_id: 4
             };
 
-            const resp = await createOrder(orderPayload);
+            console.log("Creando Factura...", billData);
+            const billResp = await createBill(billData);
+            if (!billResp || !billResp.id_key) throw new Error("Fallo al crear la factura (Bill)");
+            const billId = billResp.id_key;
 
-            if (resp && resp.id_key) {
+
+            // --- PASO 2: Crear Orden (Order) ---
+            const orderData = {
+                client_id: currentUser.id_key,
+                bill_id: billId,
+                total: totalAmount,
+                delivery_method: 3, // Hardcodeado según instrucciones
+                status: 1, // 1 = PENDING (asumido por Enum)
+                date: new Date().toISOString()
+            };
+
+            console.log("Creando Orden...", orderData);
+            const orderResp = await createOrder(orderData);
+            if (!orderResp || !orderResp.id_key) throw new Error("Fallo al crear la orden (Order)");
+            const orderId = orderResp.id_key;
+
+
+            // --- PASO 3: Crear Detalles (Order Details) ---
+            console.log("Creando Detalles para Orden #", orderId);
+            for (const item of cart) {
+                const detailData = {
+                    order_id: orderId,
+                    product_id: item.id,
+                    quantity: item.quantity,
+                    price: item.price
+                };
+
+                // Fallar si un detalle no se crea podría ser catastrófico o no. 
+                // Aquí, si falla, lanzamos error y el catch atrapa todo.
+                const detailResp = await createOrderDetail(detailData);
+                if (!detailResp) throw new Error(`Fallo al crear detalle para producto ${item.id}`);
+            }
+
+
+            // --- FIN: Éxito ---
+            if (statusDiv) {
                 statusDiv.innerHTML = `
-                    <div style="text-align:center; padding:2rem;">
-                        <h3 style="color:green; font-size:2rem; margin-bottom:1rem;">¡Pago Exitoso!</h3>
-                        <p style="font-size:1.2rem;">Gracias por tu compra.</p>
-                        <p class="text-muted">Tu orden #${resp.id_key} ha sido confirmada.</p>
-                        <button onclick="window.closeAllModals()" class="btn-primary" style="margin-top:2rem;">Cerrar</button>
+                    <div style="text-align:center; padding:3rem 2rem;">
+                        <div style="width: 80px; height: 80px; background: rgba(34, 197, 94, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <h3 style="color:#ffffff; font-size:1.75rem; font-weight: 700; margin-bottom:0.5rem;">¡Pago Exitoso!</h3>
+                        <p style="font-size:1.1rem; color: #9ca3af; margin-bottom: 2rem;">Gracias por tu compra.</p>
+                        
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 0.25rem;">Número de Orden</p>
+                            <p style="color: #ffffff; font-size: 1.2rem; font-weight: 600;">#${orderId}</p>
+                        </div>
+                        
+                        <button onclick="window.closeAllModals()" class="btn-primary" style="min-width: 200px;">Volver a la Tienda</button>
                     </div>
                 `;
+
+                // Vaciar carrito
                 cart = [];
                 saveCart();
                 renderCartUI();
-            } else {
-                throw new Error("Respuesta backend inválida");
             }
+
         } catch (err) {
             console.error(err);
             if (statusDiv) {
                 statusDiv.innerHTML = `
-                    <div style="text-align:center;">
+                    < div style = "text-align:center;" >
                         <h3 style="color:red;">Error</h3>
                         <p>No se pudo procesar la orden.</p>
+                        <p style="font-size:0.8rem; color:grey;">Detalle: ${err.message}</p>
                         <button onclick="window.closeAllModals()" class="btn-secondary">Cerrar</button>
-                    </div>
-                `;
+                    </div >
+                    `;
             }
         }
     };
