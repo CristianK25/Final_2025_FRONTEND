@@ -502,6 +502,34 @@
       margin-bottom: 16px;
       opacity: 0.5;
     }
+    /* Progress Bar Styles */
+    .progress-bg {
+      height: 6px;
+      background-color: #30363d;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: #238636;
+      width: 0%;
+      transition: width 0.5s ease, background-color 0.3s ease;
+    }
+    
+    /* Status Indicator */
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .status-dot.healthy { background-color: #3fb950; box-shadow: 0 0 8px rgba(63, 185, 80, 0.4); }
+    .status-dot.warning { background-color: #d29922; box-shadow: 0 0 8px rgba(210, 153, 34, 0.4); }
+    .status-dot.critical { background-color: #f85149; box-shadow: 0 0 8px rgba(248, 81, 73, 0.4); }
+    .status-dot.unknown { background-color: #8b949e; }
+
   </style>
 </head>
 <body>
@@ -726,20 +754,76 @@
         </div>
       </section>
 
-      <!-- Diagnostic Section -->
+      <!-- Diagnostic Section (VISUAL REDESIGN) -->
       <section id="diagnostic" class="section-content">
-        <div class="table-container">
-          <div class="table-header">
-            <h2 class="table-title">Herramienta de Diagnóstico del Sistema</h2>
-          </div>
-          <div style="padding: 24px;">
-            <div class="diagnostic-controls">
-              <button class="btn-primary" onclick="window.runHealthCheck()">▶ Ejecutar Health Check</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+             <div>
+                 <h2 class="table-title" style="margin-bottom:4px;">Salud del Sistema</h2>
+                 <p style="font-size:13px; color:#8b949e;" id="diag-last-update">Último análisis: Nunca</p>
+             </div>
+             <button class="btn-primary" onclick="window.runHealthCheck()">
+                 <svg fill="none" stroke="currentColor" style="width:16px;height:16px;margin-right:8px;vertical-align:text-bottom;" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                 Ejecutar Diagnóstico
+             </button>
+        </div>
+
+        <div class="stats-grid">
+            <!-- API Status -->
+            <div class="stat-card">
+                <div class="stat-label">API Backend</div>
+                <div style="display:flex; align-items:center; margin-top:8px;">
+                    <span class="status-dot unknown" id="diag-api-dot"></span>
+                    <span class="stat-value" style="font-size:24px;" id="diag-api-status">Unknown</span>
+                </div>
+                <div class="stat-trend" id="diag-api-msg">Verificando conectividad...</div>
             </div>
-            <div class="diagnostic-console" id="diagnosticConsole">
-Esperando ejecución del diagnóstico...
+
+            <!-- Database Status -->
+            <div class="stat-card">
+                <div class="stat-label">Base de Datos</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+                     <div style="display:flex; align-items:center;">
+                        <span class="status-dot unknown" id="diag-db-dot"></span>
+                        <span class="stat-value" style="font-size:24px;" id="diag-db-status">--</span>
+                     </div>
+                     <span style="font-size:13px; color:#8b949e;" id="diag-db-latency">-- ms</span>
+                </div>
+                <!-- Latency Bar -->
+                <div style="margin-top:12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:#8b949e; margin-bottom:4px;">
+                        <span>Latencia</span>
+                        <span>Max: 500ms</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="diag-db-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- Redis Status -->
+            <div class="stat-card">
+                <div class="stat-label">Servicio Redis</div>
+                <div style="display:flex; align-items:center; margin-top:8px;">
+                    <span class="status-dot unknown" id="diag-redis-dot"></span>
+                    <span class="stat-value" style="font-size:24px;" id="diag-redis-status">--</span>
+                </div>
+                <div class="stat-trend">Cache y Sesiones</div>
+            </div>
+
+            <!-- Pool Status -->
+            <div class="stat-card">
+                <div class="stat-label">Pool de Conexiones</div>
+                <div style="margin-top:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:end;">
+                        <span class="stat-value" style="font-size:24px;" id="diag-pool-percent">0%</span>
+                        <span style="font-size:13px; color:#c9d1d9;" id="diag-pool-count">0/0</span>
+                    </div>
+                    <div class="progress-bg" style="margin-top:8px;">
+                         <div class="progress-fill" id="diag-pool-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="stat-trend" style="margin-top:8px;" id="diag-pool-health">Estado: Desconocido</div>
+                </div>
+            </div>
         </div>
       </section>
     </main>

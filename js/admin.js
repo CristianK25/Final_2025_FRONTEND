@@ -390,7 +390,7 @@ async function loadCustomersTable() {
 }
 
 
-// --- System Utilities ---
+// --- System Utilities (Visual Diagnostic) ---
 
 function getStatusBadge(status) {
     switch (status) {
@@ -403,25 +403,110 @@ function getStatusBadge(status) {
 }
 
 window.runHealthCheck = async () => {
-    const consoleDiv = document.getElementById('diagnosticConsole');
-    consoleDiv.textContent = 'Iniciando diagnóstico del sistema...\n';
+    // Reset visuals to loading state
+    setDiagLoading();
 
     try {
-        consoleDiv.textContent += '[INFO] Contactando API Backend...\n';
         const result = await checkHealth();
+        const validStatuses = ['healthy', 'warning', 'degraded', 'critical'];
 
-        if (result && result.status === 'ok') {
-            consoleDiv.textContent += '[OK] API Status: ONLINE\n';
-            consoleDiv.textContent += `[OK] Server Time: ${new Date().toISOString()}\n`;
-            consoleDiv.textContent += `[INFO] DB Check: ${result.database !== undefined ? 'OK' : 'Unknown'}\n`;
-            consoleDiv.textContent += '\n✓ DIAGNÓSTICO COMPLETADO EXITOSAMENTE\n';
+        if (result && validStatuses.includes(result.status)) {
+            updateDiagUI(result);
         } else {
-            consoleDiv.textContent += '[ERROR] Respuesta inválida del servidor.\n';
+            // Fallback error
+            markDiagError("Respuesta inválida API");
         }
     } catch (e) {
-        consoleDiv.textContent += `[CRITICAL] Error de conexión: ${e.message}\n`;
+        console.error(e);
+        markDiagError("Error de Conexión");
     }
 };
+
+function setDiagLoading() {
+    document.getElementById('diag-last-update').textContent = 'Actualizando...';
+    // API
+    document.getElementById('diag-api-status').textContent = '...';
+    document.getElementById('diag-api-dot').className = 'status-dot unknown';
+    // DB
+    document.getElementById('diag-db-status').textContent = '...';
+    document.getElementById('diag-db-dot').className = 'status-dot unknown';
+    document.getElementById('diag-db-bar').style.width = '0%';
+    // Redis
+    document.getElementById('diag-redis-status').textContent = '...';
+    document.getElementById('diag-redis-dot').className = 'status-dot unknown';
+    // Pool
+    document.getElementById('diag-pool-percent').textContent = '...';
+    document.getElementById('diag-pool-bar').style.width = '0%';
+}
+
+function updateDiagUI(data) {
+    const timestamp = new Date(data.timestamp).toLocaleTimeString();
+    document.getElementById('diag-last-update').textContent = `Última actualización: ${timestamp} `;
+
+    // 1. API Status
+    const apiStatus = data.status; // healthy, warning...
+    const apiEl = document.getElementById('diag-api-status');
+    const apiDot = document.getElementById('diag-api-dot');
+    const apiMsg = document.getElementById('diag-api-msg');
+
+    apiEl.textContent = apiStatus.toUpperCase();
+    apiDot.className = `status - dot ${apiStatus} `;
+    apiMsg.textContent = apiStatus === 'healthy' ? 'Todos los sistemas operativos' : 'Se detectaron problemas';
+
+    // 2. Database
+    if (data.checks.database) {
+        const db = data.checks.database;
+        document.getElementById('diag-db-status').textContent = db.status.toUpperCase();
+        document.getElementById('diag-db-dot').className = `status - dot ${db.health} `;
+
+        if (db.latency_ms !== null) {
+            document.getElementById('diag-db-latency').textContent = `${db.latency_ms} ms`;
+            // Calculate bar width (max 500ms = 100%)
+            const latPct = Math.min((db.latency_ms / 500) * 100, 100);
+            const bar = document.getElementById('diag-db-bar');
+            bar.style.width = `${latPct}% `;
+
+            // Colorize latency bar
+            if (db.latency_ms < 100) bar.style.backgroundColor = '#3fb950'; // Green
+            else if (db.latency_ms < 300) bar.style.backgroundColor = '#d29922'; // Orange
+            else bar.style.backgroundColor = '#f85149'; // Red
+        }
+    }
+
+    // 3. Redis
+    if (data.checks.redis) {
+        const redis = data.checks.redis;
+        document.getElementById('diag-redis-status').textContent = redis.status.toUpperCase();
+        document.getElementById('diag-redis-dot').className = `status - dot ${redis.health} `;
+    }
+
+    // 4. Pool
+    if (data.checks.db_pool) {
+        const pool = data.checks.db_pool;
+        if (pool.status !== 'error') {
+            document.getElementById('diag-pool-percent').textContent = `${pool.utilization_percent}% `;
+            document.getElementById('diag-pool-count').textContent = `${pool.checked_out}/${pool.total_capacity}`;
+            document.getElementById('diag-pool-health').textContent = `Estado: ${pool.health.toUpperCase()}`;
+
+            const bar = document.getElementById('diag-pool-bar');
+            bar.style.width = `${pool.utilization_percent}%`;
+
+            // Colorize based on health
+            if (pool.health === 'healthy') bar.style.backgroundColor = '#3fb950';
+            else if (pool.health === 'warning') bar.style.backgroundColor = '#d29922';
+            else bar.style.backgroundColor = '#f85149';
+        } else {
+            document.getElementById('diag-pool-percent').textContent = 'Error';
+            document.getElementById('diag-pool-health').textContent = pool.error || 'Pool Error';
+        }
+    }
+}
+
+function markDiagError(msg) {
+    document.getElementById('diag-last-update').textContent = `Error: ${msg}`;
+    document.getElementById('diag-api-status').textContent = 'ERROR';
+    document.getElementById('diag-api-dot').className = 'status-dot critical';
+}
 
 window.handleLogout = () => {
     if (confirm('¿Está seguro de que desea cerrar sesión?')) {
