@@ -588,23 +588,23 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Total Pedidos</div>
-            <div class="stat-value">1,284</div>
-            <div class="stat-trend">↑ 12% vs mes anterior</div>
+            <div class="stat-value" id="stat-orders-total">...</div>
+            <div class="stat-trend" id="stat-orders-trend">Cargando...</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Ventas Totales</div>
-            <div class="stat-value">$54,390</div>
-            <div class="stat-trend">↑ 8% vs mes anterior</div>
+            <div class="stat-value" id="stat-sales-total">...</div>
+            <div class="stat-trend" id="stat-sales-trend">Cargando...</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Clientes Registrados</div>
-            <div class="stat-value">892</div>
-            <div class="stat-trend">↑ 5% vs mes anterior</div>
+            <div class="stat-value" id="stat-clients-total">...</div>
+            <div class="stat-trend" id="stat-clients-trend">Cargando...</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Productos Activos</div>
-            <div class="stat-value">127</div>
-            <div class="stat-trend">↑ 3 nuevos esta semana</div>
+            <div class="stat-value" id="stat-products-total">...</div>
+            <div class="stat-trend" id="stat-products-trend">Cargando...</div>
           </div>
         </div>
 
@@ -622,42 +622,8 @@
                 <th>Estado</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>#ORD-1247</td>
-                <td>carlos.rodriguez@email.com</td>
-                <td>10 Dic 2024</td>
-                <td>$1,299.99</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-              </tr>
-              <tr>
-                <td>#ORD-1246</td>
-                <td>maria.garcia@email.com</td>
-                <td>10 Dic 2024</td>
-                <td>$899.99</td>
-                <td><span class="badge badge-info">En tránsito</span></td>
-              </tr>
-              <tr>
-                <td>#ORD-1245</td>
-                <td>juan.perez@email.com</td>
-                <td>9 Dic 2024</td>
-                <td>$2,199.98</td>
-                <td><span class="badge badge-warning">Procesando</span></td>
-              </tr>
-              <tr>
-                <td>#ORD-1244</td>
-                <td>ana.martinez@email.com</td>
-                <td>9 Dic 2024</td>
-                <td>$549.99</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-              </tr>
-              <tr>
-                <td>#ORD-1243</td>
-                <td>luis.fernandez@email.com</td>
-                <td>8 Dic 2024</td>
-                <td>$1,749.99</td>
-                <td><span class="badge badge-info">En tránsito</span></td>
-              </tr>
+            <tbody id="dashboard-orders-body">
+              <!-- JS Populated -->
             </tbody>
           </table>
         </div>
@@ -668,7 +634,7 @@
         <div class="table-container">
           <div class="table-header">
             <h2 class="table-title">Gestión de Productos</h2>
-            <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
+            <button class="btn-primary" onclick="window.openProductModal()">+ Nuevo Producto</button>
           </div>
           <table>
             <thead>
@@ -682,71 +648,7 @@
               </tr>
             </thead>
             <tbody id="productsTableBody">
-              <tr>
-                <td>#PRD-001</td>
-                <td>MacBook Pro 16" M3 Max</td>
-                <td>Laptops</td>
-                <td>$2,499.00</td>
-                <td>15</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon" onclick="editProduct(1)">Editar</button>
-                    <button class="btn-icon danger" onclick="deleteProduct(1)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#PRD-002</td>
-                <td>iPhone 15 Pro Max</td>
-                <td>Smartphones</td>
-                <td>$1,199.00</td>
-                <td>28</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon" onclick="editProduct(2)">Editar</button>
-                    <button class="btn-icon danger" onclick="deleteProduct(2)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#PRD-003</td>
-                <td>iPad Pro 12.9" M2</td>
-                <td>Tablets</td>
-                <td>$1,099.00</td>
-                <td>12</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon" onclick="editProduct(3)">Editar</button>
-                    <button class="btn-icon danger" onclick="deleteProduct(3)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#PRD-004</td>
-                <td>AirPods Pro 2nd Gen</td>
-                <td>Accesorios</td>
-                <td>$249.00</td>
-                <td>45</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon" onclick="editProduct(4)">Editar</button>
-                    <button class="btn-icon danger" onclick="deleteProduct(4)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#PRD-005</td>
-                <td>Apple Watch Ultra 2</td>
-                <td>Wearables</td>
-                <td>$799.00</td>
-                <td>22</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon" onclick="editProduct(5)">Editar</button>
-                    <button class="btn-icon danger" onclick="deleteProduct(5)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
+               <!-- JS Populated -->
             </tbody>
           </table>
         </div>
@@ -757,7 +659,7 @@
         <div class="table-container">
           <div class="table-header">
             <h2 class="table-title">Gestión de Categorías</h2>
-            <button class="btn-primary" onclick="openCategoryModal()">+ Nueva Categoría</button>
+            <button class="btn-primary" onclick="window.openCategoryModal()">+ Nueva Categoría</button>
           </div>
           <table>
             <thead>
@@ -769,56 +671,7 @@
               </tr>
             </thead>
             <tbody id="categoriesTableBody">
-              <tr>
-                <td>#CAT-001</td>
-                <td>Laptops</td>
-                <td>24 productos</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="deleteCategory(1)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#CAT-002</td>
-                <td>Smartphones</td>
-                <td>35 productos</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="deleteCategory(2)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#CAT-003</td>
-                <td>Tablets</td>
-                <td>18 productos</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="deleteCategory(3)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#CAT-004</td>
-                <td>Accesorios</td>
-                <td>42 productos</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="deleteCategory(4)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#CAT-005</td>
-                <td>Wearables</td>
-                <td>8 productos</td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="deleteCategory(5)">Eliminar</button>
-                  </div>
-                </td>
-              </tr>
+               <!-- JS Populated -->
             </tbody>
           </table>
         </div>
@@ -842,111 +695,8 @@
                 <th>Acciones</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>#ORD-1247</td>
-                <td>carlos.rodriguez@email.com</td>
-                <td>10 Dic 2024</td>
-                <td>2 items</td>
-                <td>$1,299.99</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1246</td>
-                <td>maria.garcia@email.com</td>
-                <td>10 Dic 2024</td>
-                <td>1 item</td>
-                <td>$899.99</td>
-                <td><span class="badge badge-info">En tránsito</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1245</td>
-                <td>juan.perez@email.com</td>
-                <td>9 Dic 2024</td>
-                <td>3 items</td>
-                <td>$2,199.98</td>
-                <td><span class="badge badge-warning">Procesando</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1244</td>
-                <td>ana.martinez@email.com</td>
-                <td>9 Dic 2024</td>
-                <td>1 item</td>
-                <td>$549.99</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1243</td>
-                <td>luis.fernandez@email.com</td>
-                <td>8 Dic 2024</td>
-                <td>2 items</td>
-                <td>$1,749.99</td>
-                <td><span class="badge badge-info">En tránsito</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1242</td>
-                <td>sofia.lopez@email.com</td>
-                <td>8 Dic 2024</td>
-                <td>4 items</td>
-                <td>$3,496.96</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1241</td>
-                <td>diego.sanchez@email.com</td>
-                <td>7 Dic 2024</td>
-                <td>1 item</td>
-                <td>$799.00</td>
-                <td><span class="badge badge-danger">Cancelado</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>#ORD-1240</td>
-                <td>valentina.torres@email.com</td>
-                <td>7 Dic 2024</td>
-                <td>2 items</td>
-                <td>$1,548.00</td>
-                <td><span class="badge badge-success">Entregado</span></td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="btn-icon">Ver Detalles</button>
-                  </div>
-                </td>
-              </tr>
+            <tbody id="orders-table-body">
+               <!-- JS Populated -->
             </tbody>
           </table>
         </div>
@@ -964,76 +714,13 @@
                 <th>ID</th>
                 <th>Email</th>
                 <th>Nombre</th>
-                <th>Fecha Registro</th>
+                <th>Teléfono</th>
                 <th>Pedidos</th>
                 <th>Total Gastado</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>#CUS-001</td>
-                <td>carlos.rodriguez@email.com</td>
-                <td>Carlos Rodríguez</td>
-                <td>15 Nov 2024</td>
-                <td>5 pedidos</td>
-                <td>$4,299.95</td>
-              </tr>
-              <tr>
-                <td>#CUS-002</td>
-                <td>maria.garcia@email.com</td>
-                <td>María García</td>
-                <td>22 Nov 2024</td>
-                <td>3 pedidos</td>
-                <td>$2,699.97</td>
-              </tr>
-              <tr>
-                <td>#CUS-003</td>
-                <td>juan.perez@email.com</td>
-                <td>Juan Pérez</td>
-                <td>28 Nov 2024</td>
-                <td>7 pedidos</td>
-                <td>$8,549.93</td>
-              </tr>
-              <tr>
-                <td>#CUS-004</td>
-                <td>ana.martinez@email.com</td>
-                <td>Ana Martínez</td>
-                <td>1 Dic 2024</td>
-                <td>2 pedidos</td>
-                <td>$1,348.98</td>
-              </tr>
-              <tr>
-                <td>#CUS-005</td>
-                <td>luis.fernandez@email.com</td>
-                <td>Luis Fernández</td>
-                <td>3 Dic 2024</td>
-                <td>4 pedidos</td>
-                <td>$3,597.96</td>
-              </tr>
-              <tr>
-                <td>#CUS-006</td>
-                <td>sofia.lopez@email.com</td>
-                <td>Sofía López</td>
-                <td>5 Dic 2024</td>
-                <td>6 pedidos</td>
-                <td>$5,896.94</td>
-              </tr>
-              <tr>
-                <td>#CUS-007</td>
-                <td>diego.sanchez@email.com</td>
-                <td>Diego Sánchez</td>
-                <td>6 Dic 2024</td>
-                <td>1 pedido</td>
-                <td>$799.00</td>
-              </tr>
-              <tr>
-                <td>#CUS-008</td>
-                <td>valentina.torres@email.com</td>
-                <td>Valentina Torres</td>
-                <td>8 Dic 2024</td>
-                <td>3 pedidos</td>
-                <td>$2,347.00</td>
-              </tr>
+            <tbody id="customers-table-body">
+               <!-- JS Populated -->
             </tbody>
           </table>
         </div>
@@ -1047,7 +734,7 @@
           </div>
           <div style="padding: 24px;">
             <div class="diagnostic-controls">
-              <button class="btn-primary" onclick="runHealthCheck()">▶ Ejecutar Health Check</button>
+              <button class="btn-primary" onclick="window.runHealthCheck()">▶ Ejecutar Health Check</button>
             </div>
             <div class="diagnostic-console" id="diagnosticConsole">
 Esperando ejecución del diagnóstico...
@@ -1063,10 +750,13 @@ Esperando ejecución del diagnóstico...
     <div class="modal">
       <div class="modal-header">
         <h3 class="modal-title" id="productModalTitle">Nuevo Producto</h3>
-        <button class="btn-close" onclick="closeProductModal()">&times;</button>
+        <button class="btn-close" onclick="window.closeProductModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="productForm">
+        <form id="productForm" onsubmit="event.preventDefault(); window.saveProduct();">
+          <!-- Hidden ID for Edit -->
+          <input type="hidden" id="prod-id">
+          
           <div class="form-group">
             <label class="form-label">Nombre del Producto</label>
             <input type="text" class="form-input" id="productName" required placeholder="Ej: MacBook Pro 14&quot; M3">
@@ -1080,21 +770,14 @@ Esperando ejecución del diagnóstico...
             <input type="number" class="form-input" id="productStock" required placeholder="0">
           </div>
           <div class="form-group">
-            <label class="form-label">Categoría</label>
-            <select class="form-select" id="productCategory" required>
-              <option value="">Seleccionar categoría</option>
-              <option value="1">Laptops</option>
-              <option value="2">Smartphones</option>
-              <option value="3">Tablets</option>
-              <option value="4">Accesorios</option>
-              <option value="5">Wearables</option>
-            </select>
+            <label class="form-label">Categoría (ID)</label>
+            <input type="number" class="form-input" id="productCategory" required placeholder="ID Categoria">
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeProductModal()">Cancelar</button>
-        <button class="btn-primary" onclick="saveProduct()">Guardar Producto</button>
+        <button class="btn-secondary" onclick="window.closeProductModal()">Cancelar</button>
+        <button class="btn-primary" onclick="window.saveProduct()">Guardar Producto</button>
       </div>
     </div>
   </div>
@@ -1104,10 +787,11 @@ Esperando ejecución del diagnóstico...
     <div class="modal">
       <div class="modal-header">
         <h3 class="modal-title">Nueva Categoría</h3>
-        <button class="btn-close" onclick="closeCategoryModal()">&times;</button>
+        <button class="btn-close" onclick="window.closeCategoryModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="categoryForm">
+        <form id="categoryForm" onsubmit="event.preventDefault(); window.saveCategory();">
+           <input type="hidden" id="cat-id">
           <div class="form-group">
             <label class="form-label">Nombre de la Categoría</label>
             <input type="text" class="form-input" id="categoryName" required placeholder="Ej: Audio">
@@ -1115,187 +799,12 @@ Esperando ejecución del diagnóstico...
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeCategoryModal()">Cancelar</button>
-        <button class="btn-primary" onclick="saveCategory()">Guardar Categoría</button>
+        <button class="btn-secondary" onclick="window.closeCategoryModal()">Cancelar</button>
+        <button class="btn-primary" onclick="window.saveCategory()">Guardar Categoría</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // Navigation
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.section-content');
-    const headerTitle = document.getElementById('headerTitle');
-
-    const sectionTitles = {
-      dashboard: 'Dashboard',
-      products: 'Gestión de Productos',
-      categories: 'Gestión de Categorías',
-      orders: 'Seguimiento de Pedidos',
-      customers: 'Clientes Registrados',
-      diagnostic: 'Diagnóstico del Sistema'
-    };
-
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const sectionId = item.getAttribute('data-section');
-        
-        // Update active nav item
-        navItems.forEach(nav => nav.classList.remove('active'));
-        item.classList.add('active');
-        
-        // Update active section
-        sections.forEach(section => section.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-        
-        // Update header title
-        headerTitle.textContent = sectionTitles[sectionId];
-      });
-    });
-
-    // Product Modal
-    function openProductModal(productId = null) {
-      const modal = document.getElementById('productModal');
-      const title = document.getElementById('productModalTitle');
-      
-      if (productId) {
-        title.textContent = 'Editar Producto';
-        // In a real app, load product data here
-      } else {
-        title.textContent = 'Nuevo Producto';
-        document.getElementById('productForm').reset();
-      }
-      
-      modal.classList.add('active');
-    }
-
-    function closeProductModal() {
-      document.getElementById('productModal').classList.remove('active');
-      document.getElementById('productForm').reset();
-    }
-
-    function saveProduct() {
-      const name = document.getElementById('productName').value;
-      const price = document.getElementById('productPrice').value;
-      const stock = document.getElementById('productStock').value;
-      const category = document.getElementById('productCategory').value;
-      
-      if (!name || !price || !stock || !category) {
-        alert('Por favor complete todos los campos');
-        return;
-      }
-      
-      // In a real app, send data to server
-      console.log('Saving product:', { name, price, stock, category });
-      alert('Producto guardado exitosamente');
-      closeProductModal();
-    }
-
-    function editProduct(productId) {
-      openProductModal(productId);
-    }
-
-    function deleteProduct(productId) {
-      if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-        console.log('Deleting product:', productId);
-        alert('Producto eliminado exitosamente');
-        // In a real app, remove from table and update server
-      }
-    }
-
-    // Category Modal
-    function openCategoryModal() {
-      document.getElementById('categoryModal').classList.add('active');
-    }
-
-    function closeCategoryModal() {
-      document.getElementById('categoryModal').classList.remove('active');
-      document.getElementById('categoryForm').reset();
-    }
-
-    function saveCategory() {
-      const name = document.getElementById('categoryName').value;
-      
-      if (!name) {
-        alert('Por favor ingrese el nombre de la categoría');
-        return;
-      }
-      
-      // In a real app, send data to server
-      console.log('Saving category:', { name });
-      alert('Categoría guardada exitosamente');
-      closeCategoryModal();
-    }
-
-    function deleteCategory(categoryId) {
-      if (confirm('¿Está seguro de que desea eliminar esta categoría?')) {
-        console.log('Deleting category:', categoryId);
-        alert('Categoría eliminada exitosamente');
-        // In a real app, remove from table and update server
-      }
-    }
-
-    // Diagnostic
-    function runHealthCheck() {
-      const console = document.getElementById('diagnosticConsole');
-      console.textContent = 'Iniciando diagnóstico del sistema...\n';
-      
-      setTimeout(() => {
-        console.textContent += '\n[INFO] Verificando conexión a base de datos...\n';
-        console.textContent += '[OK] Conexión establecida correctamente\n';
-      }, 500);
-      
-      setTimeout(() => {
-        console.textContent += '\n[INFO] Verificando servicios de API...\n';
-        console.textContent += '[OK] API REST respondiendo correctamente\n';
-        console.textContent += '[OK] Tiempo de respuesta: 45ms\n';
-      }, 1000);
-      
-      setTimeout(() => {
-        console.textContent += '\n[INFO] Verificando almacenamiento...\n';
-        console.textContent += '[OK] Espacio disponible: 2.4 TB / 5 TB\n';
-        console.textContent += '[OK] Uso: 48%\n';
-      }, 1500);
-      
-      setTimeout(() => {
-        console.textContent += '\n[INFO] Verificando caché...\n';
-        console.textContent += '[OK] Redis activo y respondiendo\n';
-        console.textContent += '[OK] Hit rate: 92%\n';
-      }, 2000);
-      
-      setTimeout(() => {
-        console.textContent += '\n[INFO] Verificando servicios externos...\n';
-        console.textContent += '[OK] Servicio de pagos: Activo\n';
-        console.textContent += '[OK] Servicio de envíos: Activo\n';
-        console.textContent += '[OK] Servicio de email: Activo\n';
-      }, 2500);
-      
-      setTimeout(() => {
-        console.textContent += '\n═══════════════════════════════════════\n';
-        console.textContent += '✓ DIAGNÓSTICO COMPLETADO\n';
-        console.textContent += '═══════════════════════════════════════\n';
-        console.textContent += '\nEstado del Sistema: ÓPTIMO\n';
-        console.textContent += 'Todos los servicios funcionando correctamente\n';
-        console.textContent += '\nÚltima ejecución: ' + new Date().toLocaleString('es-ES') + '\n';
-      }, 3000);
-    }
-
-    // Logout
-    function handleLogout() {
-      if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-        alert('Sesión cerrada exitosamente');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.remove('active');
-        }
-      });
-    });
-  </script>
+  <script type="module" src="js/admin.js"></script>
 </body>
 </html>

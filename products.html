@@ -39,21 +39,16 @@
             <!-- Price -->
             <div class="filter-group">
                 <label id="price-label">Precio</label>
-                <div class="range-slider-container">
-                    <div class="range-track"></div>
+                <div class="range-slider">
+                    <div class="slider-track"></div>
+                    <div class="slider-range" id="slider-range-highlight"></div>
+                    
+                    <!-- Floating Tooltips -->
+                    <div class="slider-tooltip" id="tooltip-min">$0</div>
+                    <div class="slider-tooltip" id="tooltip-max">$10000</div>
+
                     <input type="range" id="price-min" min="0" max="10000" value="0">
                     <input type="range" id="price-max" min="0" max="10000" value="10000">
-                </div>
-                <div class="price-inputs">
-                    <div class="price-field">
-                        <span>Min</span>
-                        <input type="number" id="input-min" value="0">
-                    </div>
-                    <div class="price-separator">-</div>
-                    <div class="price-field">
-                        <span>Max</span>
-                        <input type="number" id="input-max" value="10000">
-                    </div>
                 </div>
             </div>
 

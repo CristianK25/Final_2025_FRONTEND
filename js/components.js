@@ -11,7 +11,6 @@ export function getProductCardHTML(product) {
             <img src="${image}" alt="${product.name}" class="card-img" onclick="window.openProductDetail(${product.id_key})" style="cursor:pointer;">
             <div class="card-body">
                 <h3 onclick="window.openProductDetail(${product.id_key})" style="cursor:pointer;">${product.name}</h3>
-                <p class="category">ID: ${product.id_key}</p>
                 <div class="price-row">
                     <span class="price">$${product.price}</span>
                     <span class="stock">Stock: ${product.stock}</span>

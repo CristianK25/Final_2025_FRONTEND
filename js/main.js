@@ -1073,11 +1073,42 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '<p class="text-center col-12">Cargando inventario...</p>';
 
         try {
-            // 1. Cargar Datos (Paralelo)
-            const [products, categories] = await Promise.all([
-                getProducts(0, 1000), // Eager load
+            // 1. Cargar Datos (Fetch All Pages Strategy)
+            let allProducts = [];
+            let skip = 0;
+            let limit = 50; // Use a safer chunk size
+            let keepFetching = true;
+
+            const [initialProducts, categories] = await Promise.all([
+                getProducts(skip, limit),
                 getCategories(0, 100)
             ]);
+
+            if (initialProducts) {
+                allProducts = [...initialProducts];
+                // Continue fetching if we got a full page
+                if (initialProducts.length < limit) {
+                    keepFetching = false;
+                } else {
+                    skip += limit;
+                }
+            } else {
+                keepFetching = false;
+            }
+
+            // Loop for remaining pages
+            while (keepFetching) {
+                const nextBatch = await getProducts(skip, limit);
+                if (nextBatch && nextBatch.length > 0) {
+                    allProducts = [...allProducts, ...nextBatch];
+                    skip += limit;
+                    if (nextBatch.length < limit) keepFetching = false;
+                } else {
+                    keepFetching = false;
+                }
+            }
+
+            const products = allProducts; // Helper var for downstream logic
 
             if (!products || products.length === 0) {
                 container.innerHTML = '<p class="text-center col-12">No hay productos disponibles.</p>';
@@ -1099,6 +1130,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const prices = products.map(p => p.price);
             priceMinLimit = Math.floor(Math.min(...prices));
             priceMaxLimit = Math.ceil(Math.max(...prices));
+
+            // Seguridad por si todos los precios son iguales o no hay array
+            if (priceMinLimit === priceMaxLimit) {
+                if (priceMinLimit === 0) priceMaxLimit = 100;
+                else {
+                    priceMinLimit = Math.floor(priceMinLimit * 0.5);
+                    priceMaxLimit = Math.ceil(priceMaxLimit * 1.5);
+                }
+            }
 
             // Inicializar sliders con los limites reales
             initPriceSliders(priceMinLimit, priceMaxLimit);
@@ -1130,26 +1170,59 @@ document.addEventListener('DOMContentLoaded', () => {
     function initPriceSliders(min, max) {
         const rangeMin = document.getElementById('price-min');
         const rangeMax = document.getElementById('price-max');
-        const inputMin = document.getElementById('input-min');
-        const inputMax = document.getElementById('input-max');
-        const label = document.getElementById('price-label');
 
-        if (label) label.textContent = `Precio ($${min} - $${max})`;
-
-        // Set attributes
-        [rangeMin, rangeMax].forEach(el => {
-            if (el) { el.min = min; el.max = max; }
-        });
-
-        // Set initial values
-        if (rangeMin) rangeMin.value = min;
-        if (rangeMax) rangeMax.value = max;
-        if (inputMin) inputMin.value = min;
-        if (inputMax) inputMax.value = max;
-
-        // Update active state
+        // Reset state
         activeFilters.minPrice = min;
         activeFilters.maxPrice = max;
+
+        // Apply attributes
+        if (rangeMin) { rangeMin.min = min; rangeMin.max = max; rangeMin.value = min; }
+        if (rangeMax) { rangeMax.min = min; rangeMax.max = max; rangeMax.value = max; }
+
+        // Update highlight width/position
+        updateSliderHighlight();
+    }
+
+    function updateSliderHighlight() {
+        const rangeMin = document.getElementById('price-min');
+        const rangeMax = document.getElementById('price-max');
+        const highlight = document.getElementById('slider-range-highlight');
+        const tooltipMin = document.getElementById('tooltip-min');
+        const tooltipMax = document.getElementById('tooltip-max');
+
+        if (!rangeMin || !rangeMax || !highlight) return;
+
+        const min = parseInt(rangeMin.min);
+        const max = parseInt(rangeMax.max);
+        const valA = parseInt(rangeMin.value);
+        const valB = parseInt(rangeMax.value);
+
+        // Sort just in case visual usage matches logic (standard range sliders don't auto-swap values in html)
+        const currentMin = Math.min(valA, valB);
+        const currentMax = Math.max(valA, valB);
+
+        const percentMin = ((currentMin - min) / (max - min)) * 100;
+        const percentMax = ((currentMax - min) / (max - min)) * 100;
+
+        // Inputs raw percentage position
+        const percentA = ((valA - min) / (max - min)) * 100;
+        const percentB = ((valB - min) / (max - min)) * 100;
+
+        highlight.style.left = percentMin + "%";
+        highlight.style.width = (percentMax - percentMin) + "%";
+
+        // Tooltips
+        if (tooltipMin) {
+            tooltipMin.style.left = percentA + "%";
+            tooltipMin.textContent = "$" + valA;
+            // Prevent collision overlap z-index adjustment or visual
+            tooltipMin.style.zIndex = (valA > valB) ? "6" : "5";
+        }
+        if (tooltipMax) {
+            tooltipMax.style.left = percentB + "%";
+            tooltipMax.textContent = "$" + valB;
+            tooltipMax.style.zIndex = (valB > valA) ? "6" : "5";
+        }
     }
 
     function setupFilterListeners() {
@@ -1165,28 +1238,33 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Price Sliders (Dual Logic)
+        // Price Sliders (Dual Logic with Collision Check)
         const rangeMin = document.getElementById('price-min');
         const rangeMax = document.getElementById('price-max');
-        const inputMin = document.getElementById('input-min');
-        const inputMax = document.getElementById('input-max');
 
-        const handlePriceChange = () => {
-            let min = parseInt(rangeMin.value);
-            let max = parseInt(rangeMax.value);
+        const handlePriceChange = (e) => {
+            let minVal = parseInt(rangeMin.value);
+            let maxVal = parseInt(rangeMax.value);
 
-            if (min > max) {
-                // Swap visual hook if crossed? Or just clamp.
-                // Simple swap logic for inputs
-                [min, max] = [max, min];
-            }
+            // Prevent crossover visual glitch if distinct sliders
+            // Ideally we allow them to cross and swap logic, OR we clamp them.
+            // Let's swap logic: if rangeMin > rangeMax, it just means "min" holds the higher value.
+            // But for the user experience, usually left handle is min.
 
-            // Update Text Inputs
-            if (inputMin) inputMin.value = min;
-            if (inputMax) inputMax.value = max;
+            // Since we have two overlapping inputs:
+            const gap = 0; // Minimum gap
 
-            activeFilters.minPrice = min;
-            activeFilters.maxPrice = max;
+            // Logic to keep handles passing each other or pushing? 
+            // Simple approach: Allow crossover, but Math.min/max in filter usage.
+            // Visual Update Text
+
+            const realMin = Math.min(minVal, maxVal);
+            const realMax = Math.max(minVal, maxVal);
+
+            activeFilters.minPrice = realMin;
+            activeFilters.maxPrice = realMax;
+
+            updateSliderHighlight();
             applyFilters();
         };
 
