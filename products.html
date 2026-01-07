@@ -30,35 +30,41 @@
             <!-- Categories -->
             <div class="filter-group">
                 <label>Categorías</label>
-                <div class="checkbox-group">
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="laptops"> Laptops
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="smartphones"> Smartphones
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="tablets"> Tablets
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="audio"> Audio
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="wearables"> Wearables
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" value="accesorios"> Accesorios
-                    </label>
+                <div id="categories-container" class="checkbox-group">
+                    <!-- Checkboxes will be injected here -->
+                    <p class="text-muted" style="font-size:0.9rem;">Cargando...</p>
                 </div>
             </div>
 
             <!-- Price -->
             <div class="filter-group">
-                <label>Rango de Precio: $0 - $5000</label>
-                <input type="range" min="0" max="5000" id="price-range" class="price-slider">
-                <div class="price-labels">
-                    <span>$0</span>
-                    <span>$5000</span>
+                <label id="price-label">Precio</label>
+                <div class="range-slider-container">
+                    <div class="range-track"></div>
+                    <input type="range" id="price-min" min="0" max="10000" value="0">
+                    <input type="range" id="price-max" min="0" max="10000" value="10000">
+                </div>
+                <div class="price-inputs">
+                    <div class="price-field">
+                        <span>Min</span>
+                        <input type="number" id="input-min" value="0">
+                    </div>
+                    <div class="price-separator">-</div>
+                    <div class="price-field">
+                        <span>Max</span>
+                        <input type="number" id="input-max" value="10000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Toggle -->
+            <div class="filter-group">
+                <div class="toggle-container">
+                    <label for="stock-toggle" style="margin:0; cursor:pointer;">Solo disponibles</label>
+                    <label class="switch">
+                        <input type="checkbox" id="stock-toggle">
+                        <span class="slider round"></span>
+                    </label>
                 </div>
             </div>
         </aside>

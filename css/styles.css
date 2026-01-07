@@ -1184,3 +1184,167 @@ h1 {
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
+
+/* --- Advanced Filters Styling --- */
+
+/* Dual Range Slider */
+.range-slider-container {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    margin-top: 10px;
+}
+
+.range-track {
+    width: 100%;
+    height: 4px;
+    background-color: var(--border);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px;
+}
+
+.range-slider-container input[type="range"] {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Centered vertically */
+    width: 100%;
+    background: none;
+    pointer-events: none; /* Allow clicking through to the one behind */
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    z-index: 2; /* Ensure inputs are above track */
+}
+
+/* Custom Thumb */
+.range-slider-container input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto; /* Re-enable pointer events for thumb */
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--bg-card); /* Add a border to separate from track */
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: transform 0.1s;
+    margin-top: -7px; /* Adjust for track height if needed? NO, because of transform Y. Wait. 
+        Standard range input height is often implied. Let's rely on centering. */
+}
+
+/* Fix for Firefox */
+.range-slider-container input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--bg-card);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.range-slider-container input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* Price Inputs */
+.price-inputs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.price-field {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+}
+
+.price-field span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.price-field input {
+    width: 100%;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-main);
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.price-field input:focus {
+    border-color: var(--primary);
+}
+
+.price-separator {
+    color: var(--text-muted);
+    font-weight: bold;
+}
+
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .slider {
+    background-color: var(--primary);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}

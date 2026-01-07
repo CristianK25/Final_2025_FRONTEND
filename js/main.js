@@ -1,5 +1,5 @@
 import { getNavbarHTML, getFooterHTML, getModalsHTML, getProductCardHTML } from './components.js';
-import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews, getProducts, createBill, createOrderDetail } from './api.js';
+import { fetchData, findClientByEmail, createClient, createOrder, updateClient, getOrdersByClient, cancelOrder, createReview, getProductReviews, getProducts, createBill, createOrderDetail, getCategories } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Renderizado de la UI Estática ---
@@ -1050,26 +1050,252 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 8. Funciones de Carga de Productos ---
 
+    // --- 8. Funciones de Carga de Productos (Refactorizado con Filtros) ---
+
+    // State global para filtros
+    let masterProducts = [];       // Inmutable
+    let filteredProducts = [];     // Renderizado
+    let categoriesMap = {};        // ID -> Nombre
+    let priceMinLimit = 0;         // Calculated Min
+    let priceMaxLimit = 10000;     // Calculated Max
+    let searchDebounceTimer = null;
+
+    // Filtros activos
+    let activeFilters = {
+        search: '',
+        categories: [], // IDs
+        minPrice: 0,
+        maxPrice: 10000,
+        stockOnly: false
+    };
+
     async function loadProductsList(container) {
-        container.innerHTML = '<p class="text-center col-12">Cargando productos...</p>';
+        container.innerHTML = '<p class="text-center col-12">Cargando inventario...</p>';
 
         try {
-            const products = await getProducts(0, 100);
+            // 1. Cargar Datos (Paralelo)
+            const [products, categories] = await Promise.all([
+                getProducts(0, 1000), // Eager load
+                getCategories(0, 100)
+            ]);
 
             if (!products || products.length === 0) {
                 container.innerHTML = '<p class="text-center col-12">No hay productos disponibles.</p>';
                 return;
             }
 
-            container.innerHTML = '';
-            products.forEach(product => {
-                container.innerHTML += getProductCardHTML(product);
-            });
+            // 2. Guardar Master State
+            masterProducts = products;
+
+            // 3. Procesar Categorías
+            if (categories) {
+                categories.forEach(cat => {
+                    categoriesMap[cat.id_key] = cat.name;
+                });
+                renderCategoryFilters(categories);
+            }
+
+            // 4. Calcular Rangos de Precio
+            const prices = products.map(p => p.price);
+            priceMinLimit = Math.floor(Math.min(...prices));
+            priceMaxLimit = Math.ceil(Math.max(...prices));
+
+            // Inicializar sliders con los limites reales
+            initPriceSliders(priceMinLimit, priceMaxLimit);
+
+            // 5. Setup de Event Listeners
+            setupFilterListeners();
+
+            // 6. Render Inicial
+            applyFilters();
 
         } catch (error) {
             console.error("Error cargando productos:", error);
             container.innerHTML = '<p class="text-center text-danger col-12">Error al cargar productos.</p>';
         }
+    }
+
+    function renderCategoryFilters(categories) {
+        const container = document.getElementById('categories-container');
+        if (!container) return;
+
+        container.innerHTML = categories.map(cat => `
+            <label class="checkbox-item">
+                <input type="checkbox" value="${cat.id_key}" onchange="window.handleCategoryChange(this)">
+                ${cat.name}
+            </label>
+        `).join('');
+    }
+
+    function initPriceSliders(min, max) {
+        const rangeMin = document.getElementById('price-min');
+        const rangeMax = document.getElementById('price-max');
+        const inputMin = document.getElementById('input-min');
+        const inputMax = document.getElementById('input-max');
+        const label = document.getElementById('price-label');
+
+        if (label) label.textContent = `Precio ($${min} - $${max})`;
+
+        // Set attributes
+        [rangeMin, rangeMax].forEach(el => {
+            if (el) { el.min = min; el.max = max; }
+        });
+
+        // Set initial values
+        if (rangeMin) rangeMin.value = min;
+        if (rangeMax) rangeMax.value = max;
+        if (inputMin) inputMin.value = min;
+        if (inputMax) inputMax.value = max;
+
+        // Update active state
+        activeFilters.minPrice = min;
+        activeFilters.maxPrice = max;
+    }
+
+    function setupFilterListeners() {
+        // Search
+        const searchInput = document.getElementById('store-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(() => {
+                    activeFilters.search = e.target.value;
+                    applyFilters();
+                }, 300); // 300ms debounce
+            });
+        }
+
+        // Price Sliders (Dual Logic)
+        const rangeMin = document.getElementById('price-min');
+        const rangeMax = document.getElementById('price-max');
+        const inputMin = document.getElementById('input-min');
+        const inputMax = document.getElementById('input-max');
+
+        const handlePriceChange = () => {
+            let min = parseInt(rangeMin.value);
+            let max = parseInt(rangeMax.value);
+
+            if (min > max) {
+                // Swap visual hook if crossed? Or just clamp.
+                // Simple swap logic for inputs
+                [min, max] = [max, min];
+            }
+
+            // Update Text Inputs
+            if (inputMin) inputMin.value = min;
+            if (inputMax) inputMax.value = max;
+
+            activeFilters.minPrice = min;
+            activeFilters.maxPrice = max;
+            applyFilters();
+        };
+
+        if (rangeMin) rangeMin.addEventListener('input', handlePriceChange);
+        if (rangeMax) rangeMax.addEventListener('input', handlePriceChange);
+
+        // Stock Toggle
+        const stockToggle = document.getElementById('stock-toggle');
+        if (stockToggle) {
+            stockToggle.addEventListener('change', (e) => {
+                activeFilters.stockOnly = e.target.checked;
+                applyFilters();
+            });
+        }
+    }
+
+    // Window global handlers for inline events
+    window.handleCategoryChange = (checkbox) => {
+        const val = parseInt(checkbox.value);
+        if (checkbox.checked) {
+            activeFilters.categories.push(val);
+        } else {
+            activeFilters.categories = activeFilters.categories.filter(id => id !== val);
+        }
+        applyFilters();
+    };
+
+    window.resetFilters = () => {
+        // 1. Reset State
+        activeFilters = {
+            search: '',
+            categories: [],
+            minPrice: priceMinLimit,
+            maxPrice: priceMaxLimit,
+            stockOnly: false
+        };
+
+        // 2. Reset UI Elements
+        // Search
+        const searchInput = document.getElementById('store-search');
+        if (searchInput) searchInput.value = '';
+
+        // Categories
+        document.querySelectorAll('#categories-container input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+        // Price
+        initPriceSliders(priceMinLimit, priceMaxLimit);
+
+        // Stock
+        const stockToggle = document.getElementById('stock-toggle');
+        if (stockToggle) stockToggle.checked = false;
+
+        // 3. Apply
+        applyFilters();
+    };
+
+    function applyFilters() {
+        // Normalización para case insensitive / accents
+        const cleanText = (str) => {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+
+        const searchText = cleanText(activeFilters.search);
+
+        filteredProducts = masterProducts.filter(product => {
+            // A. Search
+            if (searchText) {
+                const prodName = cleanText(product.name);
+                if (!prodName.includes(searchText)) return false;
+            }
+
+            // B. Categories
+            if (activeFilters.categories.length > 0) {
+                if (!activeFilters.categories.includes(product.category_id)) return false;
+            }
+
+            // C. Price
+            if (product.price < activeFilters.minPrice || product.price > activeFilters.maxPrice) return false;
+
+            // D. Stock
+            if (activeFilters.stockOnly && product.stock <= 0) return false;
+
+            return true;
+        });
+
+        renderProducts(filteredProducts);
+    }
+
+    function renderProducts(products) {
+        const container = productListContainer; // Scope from init or global
+        if (!container) return;
+
+        if (products.length === 0) {
+            container.innerHTML = `
+                <div class="col-12 text-center" style="grid-column: 1 / -1; padding: 4rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                    <h3 class="text-muted">No se encontraron resultados</h3>
+                    <p class="text-muted">Intenta con otros filtros o términos de búsqueda.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+        products.forEach(product => {
+            // Podemos inyectar el nombre de categoría si quisiéramos sobrescribir el HTML
+            // pero usamos el por defecto components.js
+            container.innerHTML += getProductCardHTML(product);
+        });
     }
 
     async function loadFeaturedProducts(container) {
