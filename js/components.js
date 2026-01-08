@@ -30,7 +30,7 @@ export function getProductCardHTML(product) {
 export function getNavbarHTML() {
     const path = window.location.pathname;
     const isProducts = path.includes('products.html');
-    const isHome = !isProducts; // Default to home if not products (simplification for this use case)
+    const isHome = !isProducts; // Default to home if not products
 
     return `
         <nav class="nav-content">
