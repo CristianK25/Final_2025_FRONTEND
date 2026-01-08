@@ -634,34 +634,79 @@ h1 {
     margin-right: auto;
 }
 
-/* --- Features Grid --- */
-.features-grid {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 2rem 0;
-    border-bottom: 1px solid #30363d;
-    margin-bottom: 4rem;
-    flex-wrap: wrap;
+/* --- Info Cards Grid (Mercado Libre Style) --- */
+.info-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 0 2rem;
+    max-width: 1400px;
+    margin: 4rem auto;
 }
 
-.feature-item {
+.info-card {
+    background-color: var(--bg-card);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: default;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+}
+
+.info-card h4 {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0; /* Align top left */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-card .card-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    text-align: center;
+    margin: 1.5rem 0;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.info-card .card-icon {
+    font-size: 3.5rem; /* Larger icon */
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.info-card p {
     color: var(--text-main);
-}
-
-.feature-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.feature-item h3 {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.4;
     margin: 0;
+    font-weight: 500;
+}
+
+.info-card .card-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    align-self: flex-start; /* Optional: align link left or keep default? User didn't specify alignment for footer, but usually these are left or block. "justify-content: space-between" on parent handles vertical pos. Let's keep it simple. */
+}
+
+.info-card .card-link:hover {
+    color: var(--text-main);
+    text-decoration: underline;
 }
 
 /* Carousel Controls */
