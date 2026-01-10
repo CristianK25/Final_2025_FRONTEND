@@ -68,22 +68,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 5. Scroll Reveal Logic (New) ---
+    // --- 5. Scroll Reveal Logic (New) ---
     const initScrollReveal = () => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+                    entry.target.classList.add('active');
                     observer.unobserve(entry.target); // Reveal only once
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.15 });
 
-        // Targets: Info Section cards, About Section parts, Title
-        document.querySelectorAll('.info-card, .about-text, .about-image, .section-title, .product-grid').forEach(el => {
-            el.classList.add('scroll-hidden');
+        // Targets: Elements with .reveal class
+        document.querySelectorAll('.reveal').forEach(el => {
             observer.observe(el);
         });
     };
+
+    // Initialize
+    initScrollReveal();
 
 
     // Reset checkout status
