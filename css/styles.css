@@ -403,42 +403,126 @@ h1 {
 /* Utlidad oculta */
 .hidden { display: none !important; }
 
-/* Scrollbar Bonito para webkit */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-main); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* Scrollbar removed to avoid console warnings */
 
-/* --- Footer --- */
+/* --- Footer (Professional E-commerce) --- */
+
+.footer-top {
+    background: radial-gradient(circle at center, rgba(88, 166, 255, 0.15) 0%, transparent 70%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 0; /* A bit more padding for presence */
+    margin-top: 4rem;
+}
+
+.footer-top-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.newsletter-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+    min-width: 300px;
+}
+
+.newsletter-icon {
+    font-size: 2rem;
+    background: rgba(88, 166, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.newsletter-text h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.newsletter-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.newsletter-form input {
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: var(--text-main);
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+}
+
+.social-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-3px);
+}
+
 .site-footer {
     background-color: #0d1117;
-    border-top: 1px solid var(--border);
-    padding: 5rem 1rem 2rem;
-    margin-top: 6rem;
+    padding: 4rem 0 2rem;
     color: var(--text-muted);
 }
 
 .footer-content {
-    max-width: 1400px;
-    margin: 0 auto;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 4rem;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 3rem;
     padding-bottom: 3rem;
+}
+
+.footer-logo {
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+.contact-info p {
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
 }
 
 .footer-col h3 {
     color: var(--text-main);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    border-bottom: none;
-    display: block;
-}
-
-.footer-col p {
-    line-height: 1.6;
-    max-width: 300px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .footer-col ul {
@@ -460,7 +544,7 @@ h1 {
 }
 
 .footer-col a:hover {
-    color: var(--primary);
+    color: var(--accent);
     transform: translateX(4px);
 }
 
@@ -468,15 +552,54 @@ h1 {
     border-top: 1px solid var(--border);
     margin-top: 2rem;
     padding-top: 2rem;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.9rem;
-    color: var(--text-muted);
 }
 
-@media (max-width: 768px) {
+.legal-links {
+    display: inline-flex;
+    gap: 1.5rem;
+    margin-left: 2rem;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.5rem;
+    opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+    .footer-top-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .newsletter-form {
+        width: 100%;
+    }
+    .newsletter-form input {
+        flex-grow: 1;
+    }
+}
+
+@media (max-width: 600px) {
     .footer-content {
         grid-template-columns: 1fr;
-        gap: 2rem;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    .legal-links {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        display: block;
     }
 }
 

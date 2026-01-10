@@ -406,27 +406,94 @@ export function getModalsHTML() {
  */
 export function getFooterHTML() {
     return `
-        <div class="site-footer">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <h3>Sobre Nosotros</h3>
-                    <p>TechStore es tu mejor opción para componentes y periféricos.</p>
+        <!-- Level 1: Newsletter & Social -->
+        <div class="footer-top">
+            <div class="container footer-top-content">
+                <div class="newsletter-section">
+                    <div class="newsletter-icon">📨</div>
+                    <div class="newsletter-text">
+                        <h4>Suscríbete a nuestras novedades</h4>
+                        <p>Recibe ofertas exclusivas y lanzamientos en tu email.</p>
+                    </div>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+                        <input type="email" placeholder="Tu correo electrónico" required>
+                        <button type="submit" class="btn-primary">Suscribirse</button>
+                    </form>
                 </div>
-                <div class="footer-col">
-                    <h3>Enlaces Rápidos</h3>
-                    <ul>
-                        <li><a href="index.html">Inicio</a></li>
-                        <li><a href="products.html">Productos</a></li>
-                        <li><a href="#" onclick="window.openAuthModal('login')">Mi Cuenta</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Contacto</h3>
-                    <p>Email: info@techstore.com</p>
+                <div class="social-links">
+                    <a href="#" class="social-btn" title="GitHub">🐙</a>
+                    <a href="#" class="social-btn" title="Twitter">🐦</a>
+                    <a href="#" class="social-btn" title="Instagram">📸</a>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 TechStore. Todos los derechos reservados.</p>
+        </div>
+
+        <!-- Level 2: Main Navigation -->
+        <div class="site-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-col brand-col">
+                        <a href="index.html" class="logo footer-logo">
+                            <div class="logo-icon">TS</div>
+                            TechStore
+                        </a>
+                        <p class="mt-4 text-muted">
+                            Tu destino premium para hardware de alto rendimiento. 
+                            Envíos a todo el país y garantía oficial.
+                        </p>
+                        <div class="contact-info mt-4">
+                            <p>📞 +54 11 1234-5678</p>
+                            <p>📍 Av. Tecnología 123, Buenos Aires</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3>Tienda</h3>
+                        <ul>
+                            <li><a href="products.html">Ver Todo</a></li>
+                            <li><a href="products.html?cat=laptops">Laptops Dev</a></li>
+                            <li><a href="products.html?cat=audio">Audio Studio</a></li>
+                            <li><a href="products.html?cat=monitors">Monitores</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h3>Soporte</h3>
+                        <ul>
+                            <li><a href="#">Centro de Ayuda</a></li>
+                            <li><a href="#">Estado del Pedido</a></li>
+                            <li><a href="#">Garantía y Devoluciones</a></li>
+                            <li><a href="#">Contacto</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h3>Mi Cuenta</h3>
+                        <ul>
+                            <li><a href="#" onclick="window.openAuthModal('login')">Iniciar Sesión</a></li>
+                            <li><a href="#" onclick="window.openAuthModal('register')">Registrarse</a></li>
+                            <li><a href="#">Mis Compras</a></li>
+                            <li><a href="#">Lista de Deseos</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Level 3: Bottom Bar & Payments -->
+                <div class="footer-bottom">
+                    <div class="copyright">
+                        <p>© 2025 TechStore. Todos los derechos reservados.</p>
+                        <div class="legal-links">
+                            <a href="#">Privacidad</a>
+                            <a href="#">Términos</a>
+                        </div>
+                    </div>
+                    <div class="payment-methods">
+                        <span title="Visa">💳</span>
+                        <span title="Mastercard">💳</span>
+                        <span title="Mercado Pago">🤝</span>
+                        <span title="Bitcoin">₿</span>
+                    </div>
+                </div>
             </div>
         </div>
     `;
