@@ -69,6 +69,13 @@ body {
 /* --- Navbar Moderna --- */
 /* --- Navbar Moderna (Re-designed) --- */
 /* --- Navbar Moderna (Re-designed) --- */
+/* --- Navbar Container (Sticky Wrapper) --- */
+#navbar-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
 .nav-content {
     display: flex;
     justify-content: space-between;
@@ -76,9 +83,8 @@ body {
     padding: 1rem 2rem;
     background: rgba(13, 17, 23, 0.85);
     border-bottom: 1px solid #30363d;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    /* position: sticky;  <-- Removed from here */
+    /* top: 0; */
     height: 72px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
