@@ -82,6 +82,18 @@ body {
     height: 72px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    animation: slideDown 1s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .nav-left {
