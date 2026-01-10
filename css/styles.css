@@ -789,39 +789,37 @@ h1 {
     line-height: 1.6;
 }
 
-/* About Section */
+/* --- About Section (Brand Story & Stats) --- */
 .about-section {
-    background: linear-gradient(135deg, var(--bg-card), var(--bg-main));
+    background: transparent;
     padding: 6rem 0;
-    margin-bottom: 6rem;
+    margin-bottom: 2rem;
     position: relative;
-    overflow: hidden;
+    border-top: 1px solid var(--border);
 }
 
-/* Decorative background element */
-.about-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 800px;
-    height: 800px;
-    background: radial-gradient(circle, rgba(88, 166, 255, 0.05) 0%, transparent 70%);
-    border-radius: 50%;
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+@media (max-width: 900px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
 }
 
 .about-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: center;
-    position: relative;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.about-text h2 {
-    font-size: 3rem;
-    margin-bottom: 2rem;
+.about-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
     background: linear-gradient(120deg, var(--text-main), var(--text-muted));
     -webkit-background-clip: text;
     background-clip: text;
@@ -829,19 +827,78 @@ h1 {
     font-weight: 800;
 }
 
-.about-text p {
-    font-size: 1.15rem;
+.about-text {
+    font-size: 1.1rem;
     color: var(--text-muted);
-    margin-bottom: 1.8rem;
-    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+    max-width: 90%;
 }
 
-.about-image img {
-    width: 100%;
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    border-top: 1px solid rgba(48, 54, 61, 0.5);
+    padding-top: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 0.3rem;
+    color: var(--text-main);
+}
+
+.color-accent {
+    color: var(--primary-hover); /* Using primary green for trust */
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.about-image-container {
+    position: relative;
     border-radius: 20px;
+    overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--border);
+}
+
+.about-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
     transition: transform 0.5s ease;
+}
+
+.about-image-container:hover img {
+    transform: scale(1.05);
+}
+
+.image-badge {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(13, 17, 23, 0.85); /* Glass-like */
+    backdrop-filter: blur(8px);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .about-image img:hover {
